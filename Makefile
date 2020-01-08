@@ -12,19 +12,22 @@ main2.o: main2.c utils.h fusion.h
 
 
 
-utils.o: utils.c utils.h
+utils.o: utils.c utils.h es.h
 	$(CC) $(CFLAGS) -c utils.c
 
-fusion.o: fusion.c fusion.h utils.h
+fusion.o: fusion.c fusion.h utils.h es.h
 	$(CC) $(CFLAGS) -c fusion.c
 
+es.o: es.c es.h 
+	$(CC) $(CFLAGS) -c es.c
 
 
-p1: main1.o utils.o 
-	$(CC) $(CFLAGS) -o p1 main1.o utils.o
 
-p2: main2.o utils.o fusion.o
-	$(CC) $(CFLAGS) -o p2 main2.o utils.o fusion.o
+p1: main1.o utils.o es.o
+	$(CC) $(CFLAGS) -o p1 main1.o utils.o es.o
+
+p2: main2.o utils.o fusion.o es.o
+	$(CC) $(CFLAGS) -o p2 main2.o utils.o fusion.o es.o
 
 
 

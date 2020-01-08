@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <elf.h>
+
 #include "utils.h"
+#include "es.h"
 
 int power(int a, int b)
 {
@@ -12,150 +14,9 @@ int power(int a, int b)
 	return r;
 }
 
-int read_Elf32_Addr (FILE *f, int endianess)
-{
-	if (endianess == 1)
-	{
-		int c;
-		//Elf32_Addr = 4
-		fread(&c, sizeof(Elf32_Addr), 1, f);
-		return c;
-	}
-	else
-	{
-		int c1 = read_Elf32_Half(f, endianess);
-		int c2 = read_Elf32_Half(f, endianess);
-		return c1*256*256+c2;
-	}
-}
 
-int read_Elf64_Addr (FILE *f, int endianess)
-{
-	if (endianess == 1)
-	{
-		int c;
-		//Elf64_Addr = 8
-		fread(&c, sizeof(Elf64_Addr), 1, f);
-		return c;
-	}
-	else
-	{
-		int c1 = read_Elf32_Addr(f, endianess);
-		int c2 = read_Elf32_Addr(f, endianess);
-		return c1*256*256*256+c2;
-	}
-}
 
-int read_Elf32_Half (FILE *f, int endianess)
-{
-	if (endianess == 1)
-		{
-		int c;
-		//Elf32_Half = 2
-		fread(&c, sizeof(Elf32_Half), 1, f);
-		return c;
-	}
-	else
-	{
-		int c1 = read_unsigned_char(f);
-		int c2 = read_unsigned_char(f);
-		return c1*256+c2;
-	}
-}
-
-int read_Elf32_Off (FILE *f, int endianess)
-{
-	if (endianess == 1)
-	{
-		int c;
-		//Elf32_Off = 4
-		fread(&c, sizeof(Elf32_Off), 1, f);
-		return c;
-	}
-	else
-	{
-		int c1 = read_Elf32_Half(f, endianess);
-		int c2 = read_Elf32_Half(f, endianess);
-		return c1*256*256+c2;
-	}
-}
-
-int read_Elf64_Off (FILE *f, int endianess)
-{
-	if (endianess == 1)
-	{
-		int c;
-		//Elf64_Off = 8
-		fread(&c, sizeof(Elf64_Off), 1, f);
-		return c;
-	}
-	else
-	{
-		int c1 = read_Elf32_Off(f, endianess);
-		int c2 = read_Elf32_Off(f, endianess);
-		return c1*256*256*256+c2;
-	}
-}
-
-int read_Elf32_Sword (FILE *f, int endianess)
-{
-	if (endianess == 1)
-	{
-		int c;
-		//Elf32_Sword = 4
-		fread(&c, sizeof(Elf32_Sword), 1, f);
-		return c;
-	}
-	else
-	{
-		int c1 = read_Elf32_Half(f, endianess);
-		int c2 = read_Elf32_Half(f, endianess);
-		return c1*256*256+c2;
-	}
-}
-
-int read_Elf32_Word (FILE *f, int endianess)
-{
-	if (endianess == 1)
-	{
-		int c;
-		//Elf32_Word = 4
-		fread(&c, sizeof(Elf32_Word), 1, f);
-		return c;
-	}
-	else
-	{
-		int c1 = read_Elf32_Half(f, endianess);
-		int c2 = read_Elf32_Half(f, endianess);
-		return c1*256*256+c2;
-	}
-}
-
-int read_Elf64_Word (FILE *f, int endianess)
-{
-	if (endianess == 1)
-	{
-		int c;
-		//Elf64_Word = 8
-		fread(&c, sizeof(Elf64_Word), 1, f);
-		return c;
-	}
-	else
-	{
-		int c1 = read_Elf32_Word(f, endianess);
-		int c2 = read_Elf32_Word(f, endianess);
-		return c1*256*256*256+c2;
-	}
-}
-
-int read_unsigned_char (FILE *f)
-{
-	int c;
-	//unsigned char = 1
-	fread(&c, sizeof(unsigned char), 1, f);
-	c = c & 0x00FF;
-	return c;
-}
+// HEADER
 
 Elf_Header read_header(FILE * f)
 {
@@ -294,7 +155,7 @@ void print_header(Elf_Header h)
 	}
 	else {
 		printf("  Magic:   ");
-		for(int i=0 ; i<16 ; i++)
+		for(int i=0 ; i<EI_NIDENT ; i++)
 			printf("%02x ", h.h64.e_ident[i]);
 		printf("\n");
 
@@ -358,6 +219,10 @@ void print_header(Elf_Header h)
 		printf("%hd\n\n", h.h64.e_shstrndx);
 	}
 }
+
+
+
+// SECTION HEADER
 
 SecHead read_section_headers(FILE * f, Elf_Header h)
 {
@@ -429,7 +294,7 @@ void print_section_headers(SecHead s, StringTab string)
 		//Ici l'affichage est adapté uniquement pour nos 2 exemples (es.o accessmem.o)
 		print_string(string, c->t32.sh_name);
 		if(i!=2 && i!=5 && i!=6){printf("\t");}
-		if(c->t32.sh_type==0){printf("SHT_NULL\t");}else if(c->t32.sh_type==1){printf("SHT_PROGBITS\t");}else if(c->t32.sh_type==2){printf("SHT_SYMTAB\t");}else if(c->t32.sh_type==3){printf("SHT_STRTAB\t");}else if(c->t32.sh_type==4){printf("SHT_RELA\t\t");}else if(c->t32.sh_type==5){printf("SHT_HASH\t");}else if(c->t32.sh_type==6){printf("SHT_DYNAMIC\t");}else if(c->t32.sh_type==7){printf("SHT_NOTE\t");}else if(c->t32.sh_type==8){printf("SHT_NOBITS\t");}else if(c->t32.sh_type==9){printf("SHT_REL\t\t");}else if(c->t32.sh_type==10){printf("SHT_SHLIB\t");}else if(c->t32.sh_type==11){printf("SHT_DYNSYM\t");}else if(c->t32.sh_type==0x70000000){printf("SHT_LOPROC\t");}else if(c->t32.sh_type==0x7fffffff){printf("SHT_HIPROC\t");}else if(c->t32.sh_type==0x80000000){printf("SHT_LOUSER\t");}else if(c->t32.sh_type==0xffffffff){printf("SHT_HIUSER\t");}else{if(i==5){printf("%x\t", c->t32.sh_type);}else{printf("%x\t\t", c->t32.sh_type);}}
+		if(c->t32.sh_type==0){printf("SHT_NULL\t");}else if(c->t32.sh_type==1){printf("SHT_PROGBITS\t");}else if(c->t32.sh_type==2){printf("SHT_SYMTAB\t");}else if(c->t32.sh_type==3){printf("SHT_STRTAB\t");}else if(c->t32.sh_type==4){printf("SHT_RELA\t\t");}else if(c->t32.sh_type==5){printf("SHT_HASH\t");}else if(c->t32.sh_type==6){printf("SHT_DYNAMIC\t");}else if(c->t32.sh_type==7){printf("SHT_NOTE\t");}else if(c->t32.sh_type==8){printf("SHT_NOBITS\t");}else if(c->t32.sh_type==9){printf("SHT_REL\t\t");}else if(c->t32.sh_type==10){printf("SHT_SHLIB\t");}else if(c->t32.sh_type==11){printf("SHT_DYNSYM\t");}else if(c->t32.sh_type==0x70000000){printf("SHT_LOPROC\t");}else if(c->t32.sh_type==0x7fffffff){printf("SHT_HIPROC\t");}else if(c->t32.sh_type==0x80000000){printf("SHT_LOUSER\t");}else if(c->t32.sh_type==0xffffffff){printf("SHT_HIUSER\t");}else if(c->t32.sh_type==0x70000003){printf("ARM_ATTRIBUTES\t");}else{if(i==5){printf("%x\t", c->t32.sh_type);}else{printf("%x\t\t", c->t32.sh_type);}}
 		printf("%x\t", c->t32.sh_addr);
 		printf("%x\t", c->t32.sh_offset);
 		printf("%x\t", c->t32.sh_size);
@@ -446,6 +311,9 @@ void print_section_headers(SecHead s, StringTab string)
 }
 
 
+
+// SECTION
+
 void print_section(FILE * f, SecHead s, int i)
 {
 	printf("Affichage de la section %d:\n", i);
@@ -460,6 +328,10 @@ void print_section(FILE * f, SecHead s, int i)
 		printf("%02x ", read_unsigned_char(f));
 	printf("\n\n");
 }
+
+
+
+// SYMBOL TABLE
 
 SymTab read_table_symboles(FILE * f, SecHead s, Elf_Header h)
 {
@@ -540,20 +412,24 @@ SymTab read_table_symboles(FILE * f, SecHead s, Elf_Header h)
 void print_table_symboles(SymTab st, StringTab string)
 {
 	printf("La table de symboles contient %d entrées :\n", st.nb);
-	printf("[Nr]\tName     Value    Size     Info     Other    shndx\n");
+	printf("[Nr]\tValue\t Size\t  Type\t\tBind\t   Vis\t    Ndx  Name\n");
 
 	OneSymbol *current = st.tete;
 
 	for(int i=0 ; i < st.nb ; i++)
 	{
 		printf("[%d]\t", i);
-		print_string(string, current->t32.st_name);
 		printf("%08x ", current->t32.st_value);
 		printf("%08x ", current->t32.st_size);
-		printf("%02x       ", current->t32.st_info);
-		printf("%02x       ", current->t32.st_other);
-		printf("%04x\n", current->t32.st_shndx);
-
+		int type = ELF32_ST_TYPE(current->t32.st_info);
+		if(type == 0){printf("STT_NOTYPE\t");}else if(type == 1){printf("STT_OBJECT\t");}else if(type == 2){printf("STT_FUNC\t");}else if(type == 3){printf("STT_SECTION\t");}else if(type == 4){printf("STT_FILE\t");}else if(type == 13){printf("STT_LOPROC\t");}else if(type == 15){printf("STT_HIPROC\t");}else{printf("%x\t",type);}
+		int bind = ELF32_ST_BIND(current->t32.st_info);
+		if(bind == 0){printf("STB_LOCAL  ");}else if(bind == 1){printf("STB_GLOBAL ");}else if(bind == 2){printf("STB_WEAK\t");}else if(bind == 13){printf("STB_LOPROC\t");}else if(bind == 15){printf("STB_HIPROC\t");}else{printf("%02x\t   ",bind);}
+		int other = current->t32.st_other;
+		if(other == 0){printf("DEFAULT  ");}else{printf("%02x\t    ", other);}
+		printf("%04x ", current->t32.st_shndx);
+		print_string(string, current->t32.st_name);
+		printf("\n");
 		current = current->suivant;
 	}
 	printf("\n\n");
@@ -561,11 +437,15 @@ void print_table_symboles(SymTab st, StringTab string)
 
 
 
+// REIMPLEMENTATION TABLE
+
 ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h)
 {
 	OneHeader *c = s.tete;
 	OneSymbol *sc = st.tete;
 
+	/*ListReimpTab L;
+	L.tete = NULL;*/
 	ReimpTab r;
 	r.tete = NULL;
 
@@ -574,9 +454,7 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h)
 	r.tete = current;
 
 
-	for (int i = 0; i < s.nb; i++) 
-	{
-	//TODO version 64 bits + Structure Elf32_Rel / Elf32_Rela
+	for (int i = 0; i < s.nb; i++){
 		if(h.architecture==1){
 			// Chek type = SHT_REL ou RELA
 			if(c->t32.sh_type == SHT_REL || c->t32.sh_type == SHT_RELA)
@@ -599,16 +477,16 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h)
 					printf("%08x ", sc->t.st_value);
 					printf("%08x\n", ELF32_R_INFO(ELF32_R_SYM(info), sc->t.st_name));*/
 
-					current->t[0] = read_Elf32_Word(f, h.endianess);
-					int info = read_Elf32_Word(f, h.endianess);
-					current->t[1] = info;
+					current->t32.r_offset = read_Elf32_Addr(f, h.endianess);
+					current->t32.r_info = read_Elf32_Word(f, h.endianess);
+					/*current->t[1] = info;
 					current->t[2] = ELF32_R_TYPE(info);
-
-					for (int x=0 ; x< ELF32_R_SYM(info) ; x++)
+					*/
+					for (int x=0 ; x< ELF32_R_SYM(current->t32.r_info) ; x++)
 						sc = sc->suivant;
 
-					current->t[3] = sc->t32.st_value;
-					current->t[4] = ELF32_R_INFO(ELF32_R_SYM(info), sc->t32.st_name);
+					current->value = sc->t32.st_value;
+					current->name = sc->t32.st_name;
 
 					sc = st.tete;
 					precedent = current;
@@ -617,7 +495,8 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h)
 				}
 				printf("\n\n");
 			}
-		} else if (h.architecture==2){
+		}
+		else if (h.architecture==2){
 			// Chek type = SHT_REL ou RELA
 			if(c->t64.sh_type == SHT_REL || c->t64.sh_type == SHT_RELA)
 			{
@@ -639,16 +518,16 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h)
 					printf("%08x ", sc->t.st_value);
 					printf("%08x\n", ELF32_R_INFO(ELF32_R_SYM(info), sc->t.st_name));*/
 
-					current->t[0] = read_Elf32_Word(f, h.endianess);
-					int info = read_Elf32_Word(f, h.endianess);
-					current->t[1] = info;
+					current->t64.r_offset = read_Elf64_Addr(f, h.endianess);
+					current->t64.r_info = read_Elf64_Word(f, h.endianess);
+					/*current->t[1] = info;
 					current->t[2] = ELF32_R_TYPE(info);
-
-					for (int x=0 ; x< ELF32_R_SYM(info) ; x++)
+					*/
+					for (int x=0 ; x < ELF32_R_SYM(current->t64.r_info) ; x++)
 						sc = sc->suivant;
 
-					current->t[3] = sc->t32.st_value;
-					current->t[4] = ELF32_R_INFO(ELF32_R_SYM(info), sc->t32.st_name);
+					current->value = sc->t64.st_value;
+					current->name = sc->t64.st_name;
 
 					sc = st.tete;
 					precedent = current;
@@ -674,18 +553,34 @@ void print_table_reimp(ReimpTab r, StringTab string2, StringTab string1)
 	for(int i=0 ; i < r.nb ; i++)
 	{
 		printf("[%d]\t", i);
-		printf("%08x ", c->t[0]);
-		printf("%08x ", c->t[1]);
-		printf("%08x ", c->t[2]);
-		printf("%08x ", c->t[3]);
-		//printf("%08x ", c->t[4]);
-		print_string(string2, (c->t[4] & 0xff));
+		printf("%08x ", c->t32.r_offset);
+		printf("%08x ", c->t32.r_info);
+		printf("%08x ", ELF32_R_TYPE(c->t32.r_info));
+		printf("%08x ", c->value);
+		printf("%08x ", c->name);
+		print_string(string2, c->name);
 		printf("\n");
 
 		c = c->suivant;
 	}
 	printf("\n\n");
 }
+
+ListReimpTab read_table_reimplantation_new(FILE * f, SecHead s, SymTab st, Elf_Header h)
+{
+	ListReimpTab LR;
+	ReimpTab r = read_table_reimplantation(f, s, st, h);
+
+	OneList *c = malloc(sizeof(OneList));
+	c->r = r;
+	LR.tete = c;
+	return LR;
+}
+void print_table_reimp_new(ListReimpTab r, StringTab string2, StringTab string1)
+{
+}
+
+// STRING TABLE
 
 StringTab read_string_table(FILE * f, Elf_Header head, SecHead s, int nb)
 {
@@ -771,6 +666,30 @@ void  print_string(StringTab string, int pos)
 }
 
 
+
+// UTILS
+
+OFile initOFile(FILE * fich_o)
+{
+	OFile a;
+	a.f = fich_o;
+	a.h = read_header(fich_o);
+	a.s = read_section_headers(fich_o, a.h);
+	a.string1 = read_string_table(fich_o, a.h, a.s, 1);
+	a.string2 = read_string_table(fich_o, a.h, a.s, 2);
+	a.st = read_table_symboles(fich_o, a.s, a.h);
+	a.r = read_table_reimplantation(fich_o, a.s, a.st, a.h);
+	return a;
+}
+
+void printOFile(OFile a)
+{
+	print_header(a.h);
+	print_section_headers(a.s, a.string1);
+	print_section(a.f, a.s, 3);
+	print_table_symboles(a.st, a.string2);
+	print_table_reimp(a.r, a.string2, a.string1);
+}
 
 void end(OFile a)
 {

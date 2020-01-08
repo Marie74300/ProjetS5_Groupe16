@@ -71,7 +71,10 @@ typedef struct _OneReimp OneReimp;
 
 struct _OneReimp
 {
-	int t[5];
+	Elf32_Rel t32;
+	Elf64_Rel t64;
+	int value;
+	int name;
 	OneReimp * suivant;
 };
 
@@ -81,6 +84,23 @@ typedef struct
 	int nb;
 	int offset;
 } ReimpTab;
+
+
+// STRUCTURE POUR LISTE TABLE REIMPLEMETATIONS
+
+typedef struct _OneList OneList;
+
+struct _OneList
+{
+	ReimpTab r;
+	OneList * suivant;
+};
+
+typedef struct
+{
+	OneList  * tete;
+	int nb;
+} ListReimpTab;
 
 
 
@@ -101,34 +121,6 @@ typedef struct
 int power(int a, int b);
 //calcul la puissance
 
-//READ
-
-int read_Elf32_Addr (FILE *f, int endianess);
-//Lis element taille 4 du fichier FILE sur 32 bit
-
-int read_Elf64_Addr (FILE *f, int endianess);
-//Lis element taille 8 du fichier FILE sur 64 bit
-
-int read_Elf32_Half (FILE *f, int endianess);
-//Lis element taille 2 du fichier FILE sur 32 bit 
-
-int read_Elf32_Off (FILE *f, int endianess);
-//Lis element taille 4 du fichier FILE sur 32 bit
-
-int read_Elf64_Off (FILE *f, int endianess);
-//Lis element taille 8 du fichier FILE sur 64 bit
-
-int read_Elf32_Sword (FILE *f, int endianess);
-//Lis element taille 4 du fichier FILE sur 32 bit
-
-int read_Elf32_Word (FILE *f, int endianess);
-//Lis element taille 4 du fichier FILE sur 32 bit
-
-int read_Elf64_Word (FILE *f, int endianess);
-//Lis element taille 8 du fichier FILE sur 64 bit
-
-int read_unsigned_char (FILE *f);
-//Lis element taille 1 du fichier FILE sur 32 bit
 
 // PARTIE 1.1
 Elf_Header read_header(FILE * f);
@@ -152,6 +144,9 @@ void print_table_symboles(SymTab st, StringTab string);
 // PARTIE 1.5
 ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h);
 void print_table_reimp(ReimpTab r, StringTab string2, StringTab string1);
+	// NEW
+	ListReimpTab read_table_reimplantation_new(FILE * f, SecHead s, SymTab st, Elf_Header h);
+	void print_table_reimp_new(ListReimpTab r, StringTab string2, StringTab string1);
 
 
 // STRING TAB
@@ -161,6 +156,8 @@ void print_string(StringTab string, int pos);
 
 
 // UTILS
+OFile initOFile(FILE * fich_o);
+void printOFile(OFile a);
 void end(OFile a);
 
 #endif

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <elf.h>
 #include "utils.h"
+#include "es.h"
 
 void write_quarter_word (int c, FILE *f);
 void write_half_word (int c, FILE *f);
