@@ -12,68 +12,140 @@ int power(int a, int b)
 	return r;
 }
 
-int read_Elf32_Addr (FILE *f)
+int read_Elf32_Addr (FILE *f, int endianess)
 {
-	int c;
-	//Elf32_Addr = 4
-	fread(&c, sizeof(Elf32_Addr), 1, f);
-	return c;
+	if (endianess == 1)
+	{
+		int c;
+		//Elf32_Addr = 4
+		fread(&c, sizeof(Elf32_Addr), 1, f);
+		return c;
+	}
+	else
+	{
+		int c1 = read_Elf32_Half(f, endianess);
+		int c2 = read_Elf32_Half(f, endianess);
+		return c1*256*256+c2;
+	}
 }
 
-int read_Elf64_Addr (FILE *f)
+int read_Elf64_Addr (FILE *f, int endianess)
 {
-	int c;
-	//Elf64_Addr = 8
-	fread(&c, sizeof(Elf64_Addr), 1, f);
-	return c;
+	if (endianess == 1)
+	{
+		int c;
+		//Elf64_Addr = 8
+		fread(&c, sizeof(Elf64_Addr), 1, f);
+		return c;
+	}
+	else
+	{
+		int c1 = read_Elf32_Addr(f, endianess);
+		int c2 = read_Elf32_Addr(f, endianess);
+		return c1*256*256*256+c2;
+	}
 }
 
-int read_Elf32_Half (FILE *f)
+int read_Elf32_Half (FILE *f, int endianess)
 {
-	int c;
-	//Elf32_Half = 2
-	fread(&c, sizeof(Elf32_Half), 1, f);
-	return c;
+	if (endianess == 1)
+		{
+		int c;
+		//Elf32_Half = 2
+		fread(&c, sizeof(Elf32_Half), 1, f);
+		return c;
+	}
+	else
+	{
+		int c1 = read_unsigned_char(f);
+		int c2 = read_unsigned_char(f);
+		return c1*256+c2;
+	}
 }
 
-int read_Elf32_Off (FILE *f)
+int read_Elf32_Off (FILE *f, int endianess)
 {
-	int c;
-	//Elf32_Off = 4
-	fread(&c, sizeof(Elf32_Off), 1, f);
-	return c;
+	if (endianess == 1)
+	{
+		int c;
+		//Elf32_Off = 4
+		fread(&c, sizeof(Elf32_Off), 1, f);
+		return c;
+	}
+	else
+	{
+		int c1 = read_Elf32_Half(f, endianess);
+		int c2 = read_Elf32_Half(f, endianess);
+		return c1*256*256+c2;
+	}
 }
 
-int read_Elf64_Off (FILE *f)
+int read_Elf64_Off (FILE *f, int endianess)
 {
-	int c;
-	//Elf64_Off = 8
-	fread(&c, sizeof(Elf64_Off), 1, f);
-	return c;
+	if (endianess == 1)
+	{
+		int c;
+		//Elf64_Off = 8
+		fread(&c, sizeof(Elf64_Off), 1, f);
+		return c;
+	}
+	else
+	{
+		int c1 = read_Elf32_Off(f, endianess);
+		int c2 = read_Elf32_Off(f, endianess);
+		return c1*256*256*256+c2;
+	}
 }
 
-int read_Elf32_Sword (FILE *f)
+int read_Elf32_Sword (FILE *f, int endianess)
 {
-	int c;
-	//Elf32_Sword = 4
-	fread(&c, sizeof(Elf32_Sword), 1, f);
-	return c;
+	if (endianess == 1)
+	{
+		int c;
+		//Elf32_Sword = 4
+		fread(&c, sizeof(Elf32_Sword), 1, f);
+		return c;
+	}
+	else
+	{
+		int c1 = read_Elf32_Half(f, endianess);
+		int c2 = read_Elf32_Half(f, endianess);
+		return c1*256*256+c2;
+	}
 }
 
-int read_Elf32_Word (FILE *f)
+int read_Elf32_Word (FILE *f, int endianess)
 {
-	int c;
-	//Elf32_Word = 4
-	fread(&c, sizeof(Elf32_Word), 1, f);
-	return c;
+	if (endianess == 1)
+	{
+		int c;
+		//Elf32_Word = 4
+		fread(&c, sizeof(Elf32_Word), 1, f);
+		return c;
+	}
+	else
+	{
+		int c1 = read_Elf32_Half(f, endianess);
+		int c2 = read_Elf32_Half(f, endianess);
+		return c1*256*256+c2;
+	}
 }
 
-int read_Elf64_Word (FILE *f)
+int read_Elf64_Word (FILE *f, int endianess)
 {
-	int c;
-	//Elf64_Word = 8
-	fread(&c, sizeof(Elf64_Word), 1, f);
-	return c;
+	if (endianess == 1)
+	{
+		int c;
+		//Elf64_Word = 8
+		fread(&c, sizeof(Elf64_Word), 1, f);
+		return c;
+	}
+	else
+	{
+		int c1 = read_Elf32_Word(f, endianess);
+		int c2 = read_Elf32_Word(f, endianess);
+		return c1*256*256*256+c2;
+	}
 }
 
 int read_unsigned_char (FILE *f)
@@ -97,51 +169,54 @@ Elf_Header read_header(FILE * f)
 		head.h64.e_ident[i] = a;
 	}
 
+	int endianess = head.h32.e_ident[EI_DATA];
+	head.endianess = endianess;
+
 	if (head.h32.e_ident[EI_CLASS] == 1)
 	{
 		head.architecture = 1;
 		
-		head.h32.e_type = read_Elf32_Half(f);
-		head.h32.e_machine = read_Elf32_Half(f);
-		head.h32.e_version = read_Elf32_Word(f);
+		head.h32.e_type = read_Elf32_Half(f, endianess);
+		head.h32.e_machine = read_Elf32_Half(f, endianess);
+		head.h32.e_version = read_Elf32_Word(f, endianess);
 
-		head.h32.e_entry = read_Elf32_Addr(f);
-		head.h32.e_phoff = read_Elf32_Off(f);
-		head.h32.e_shoff = read_Elf32_Off(f);
-		head.h32.e_flags = read_Elf32_Word(f);
+		head.h32.e_entry = read_Elf32_Addr(f, endianess);
+		head.h32.e_phoff = read_Elf32_Off(f, endianess);
+		head.h32.e_shoff = read_Elf32_Off(f, endianess);
+		head.h32.e_flags = read_Elf32_Word(f, endianess);
 
-		head.h32.e_ehsize = read_Elf32_Half(f);
-		head.h32.e_phentsize = read_Elf32_Half(f);
+		head.h32.e_ehsize = read_Elf32_Half(f, endianess);
+		head.h32.e_phentsize = read_Elf32_Half(f, endianess);
 
-		head.h32.e_phnum = read_Elf32_Half(f);
-		head.h32.e_shentsize = read_Elf32_Half(f);
+		head.h32.e_phnum = read_Elf32_Half(f, endianess);
+		head.h32.e_shentsize = read_Elf32_Half(f, endianess);
 
-		head.h32.e_shnum = read_Elf32_Half(f);
-		head.h32.e_shstrndx = read_Elf32_Half(f);
+		head.h32.e_shnum = read_Elf32_Half(f, endianess);
+		head.h32.e_shstrndx = read_Elf32_Half(f, endianess);
 	}
 
 	else if (head.h64.e_ident[EI_CLASS] == 2)
 	{
 		head.architecture = 2;
 		
-		head.h64.e_type = read_Elf32_Half(f);
-		head.h64.e_machine = read_Elf32_Half(f);
-		head.h64.e_version = read_Elf32_Word(f);
+		head.h64.e_type = read_Elf32_Half(f, endianess);
+		head.h64.e_machine = read_Elf32_Half(f, endianess);
+		head.h64.e_version = read_Elf32_Word(f, endianess);
 
-		head.h64.e_entry = read_Elf64_Addr(f);
-		head.h64.e_phoff = read_Elf64_Off(f);
-		head.h64.e_shoff = read_Elf64_Off(f);
+		head.h64.e_entry = read_Elf64_Addr(f, endianess);
+		head.h64.e_phoff = read_Elf64_Off(f, endianess);
+		head.h64.e_shoff = read_Elf64_Off(f, endianess);
 
-		head.h64.e_flags = read_Elf32_Off(f);
+		head.h64.e_flags = read_Elf32_Off(f, endianess);
 
-		head.h64.e_ehsize = read_Elf32_Half(f);
-		head.h64.e_phentsize = read_Elf32_Half(f);
+		head.h64.e_ehsize = read_Elf32_Half(f, endianess);
+		head.h64.e_phentsize = read_Elf32_Half(f, endianess);
 
-		head.h64.e_phnum = read_Elf32_Half(f);
-		head.h64.e_shentsize = read_Elf32_Half(f);
+		head.h64.e_phnum = read_Elf32_Half(f, endianess);
+		head.h64.e_shentsize = read_Elf32_Half(f, endianess);
 
-		head.h64.e_shnum = read_Elf32_Half(f);
-		head.h64.e_shstrndx = read_Elf32_Half(f);
+		head.h64.e_shnum = read_Elf32_Half(f, endianess);
+		head.h64.e_shstrndx = read_Elf32_Half(f, endianess);
 	}
 
 	return head;
@@ -302,16 +377,16 @@ SecHead read_section_headers(FILE * f, Elf_Header h)
 	if (h.architecture == 1){
 		for(int i=0 ; i<e_shnum ; i++)
 		{
-			c->t32.sh_name = read_Elf32_Word(f);
-			c->t32.sh_type = read_Elf32_Word(f);
-			c->t32.sh_flags = read_Elf32_Word(f);
-			c->t32.sh_addr = read_Elf32_Addr(f);
-			c->t32.sh_offset = read_Elf32_Off(f);
-			c->t32.sh_size = read_Elf32_Word(f);
-			c->t32.sh_link = read_Elf32_Word(f);
-			c->t32.sh_info = read_Elf32_Word(f);
-			c->t32.sh_addralign = read_Elf32_Word(f);
-			c->t32.sh_entsize = read_Elf32_Word(f);
+			c->t32.sh_name = read_Elf32_Word(f, h.endianess);
+			c->t32.sh_type = read_Elf32_Word(f, h.endianess);
+			c->t32.sh_flags = read_Elf32_Word(f, h.endianess);
+			c->t32.sh_addr = read_Elf32_Addr(f, h.endianess);
+			c->t32.sh_offset = read_Elf32_Off(f, h.endianess);
+			c->t32.sh_size = read_Elf32_Word(f, h.endianess);
+			c->t32.sh_link = read_Elf32_Word(f, h.endianess);
+			c->t32.sh_info = read_Elf32_Word(f, h.endianess);
+			c->t32.sh_addralign = read_Elf32_Word(f, h.endianess);
+			c->t32.sh_entsize = read_Elf32_Word(f, h.endianess);
 
 			p = c;
 			c = malloc (sizeof(OneHeader));
@@ -320,16 +395,16 @@ SecHead read_section_headers(FILE * f, Elf_Header h)
 	} else if (h.architecture==2) {
 		for(int i=0 ; i<e_shnum ; i++)
 		{
-			c->t64.sh_name = read_Elf32_Word(f);
-			c->t64.sh_type = read_Elf32_Word(f);
-			c->t64.sh_flags = read_Elf64_Word(f);
-			c->t64.sh_addr = read_Elf64_Addr(f);
-			c->t64.sh_offset = read_Elf64_Off(f);
-			c->t64.sh_size = read_Elf64_Word(f);
-			c->t64.sh_link = read_Elf32_Word(f);
-			c->t64.sh_info = read_Elf32_Word(f);
-			c->t64.sh_addralign = read_Elf64_Word(f);
-			c->t64.sh_entsize = read_Elf64_Word(f);
+			c->t64.sh_name = read_Elf32_Word(f, h.endianess);
+			c->t64.sh_type = read_Elf32_Word(f, h.endianess);
+			c->t64.sh_flags = read_Elf64_Word(f, h.endianess);
+			c->t64.sh_addr = read_Elf64_Addr(f, h.endianess);
+			c->t64.sh_offset = read_Elf64_Off(f, h.endianess);
+			c->t64.sh_size = read_Elf64_Word(f, h.endianess);
+			c->t64.sh_link = read_Elf32_Word(f, h.endianess);
+			c->t64.sh_info = read_Elf32_Word(f, h.endianess);
+			c->t64.sh_addralign = read_Elf64_Word(f, h.endianess);
+			c->t64.sh_entsize = read_Elf64_Word(f, h.endianess);
 
 			p = c;
 			c = malloc (sizeof(OneHeader));
@@ -415,12 +490,12 @@ SymTab read_table_symboles(FILE * f, SecHead s, Elf_Header h)
 				fseek(f, c2->t32.sh_offset, SEEK_SET);
 					for(int j=0 ; j < st.nb ; j++)
 					{
-						current->t32.st_name = read_Elf32_Word(f);
-						current->t32.st_value = read_Elf32_Addr(f);
-						current->t32.st_size = read_Elf32_Word(f);
+						current->t32.st_name = read_Elf32_Word(f, h.endianess);
+						current->t32.st_value = read_Elf32_Addr(f, h.endianess);
+						current->t32.st_size = read_Elf32_Word(f, h.endianess);
 						current->t32.st_info = read_unsigned_char(f);
 						current->t32.st_other = read_unsigned_char(f);
-						current->t32.st_shndx = read_Elf32_Half(f);
+						current->t32.st_shndx = read_Elf32_Half(f, h.endianess);
 
 						precedent = current;
 						current = malloc (sizeof(OneSymbol));
@@ -443,12 +518,12 @@ SymTab read_table_symboles(FILE * f, SecHead s, Elf_Header h)
 				fseek(f, c2->t64.sh_offset, SEEK_SET);
 					for(int j=0 ; j < st.nb ; j++)
 					{
-						current->t64.st_name = read_Elf32_Word(f);
-						current->t64.st_value = read_Elf32_Addr(f);
-						current->t64.st_size = read_Elf32_Word(f);
+						current->t64.st_name = read_Elf32_Word(f, h.endianess);
+						current->t64.st_value = read_Elf32_Addr(f, h.endianess);
+						current->t64.st_size = read_Elf32_Word(f, h.endianess);
 						current->t64.st_info = read_unsigned_char(f);
 						current->t64.st_other = read_unsigned_char(f);
-						current->t64.st_shndx = read_Elf32_Half(f);
+						current->t64.st_shndx = read_Elf32_Half(f, h.endianess);
 
 						precedent = current;
 						current = malloc (sizeof(OneSymbol));
@@ -524,8 +599,8 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h)
 					printf("%08x ", sc->t.st_value);
 					printf("%08x\n", ELF32_R_INFO(ELF32_R_SYM(info), sc->t.st_name));*/
 
-					current->t[0] = read_Elf32_Word(f);
-					int info = read_Elf32_Word(f);
+					current->t[0] = read_Elf32_Word(f, h.endianess);
+					int info = read_Elf32_Word(f, h.endianess);
 					current->t[1] = info;
 					current->t[2] = ELF32_R_TYPE(info);
 
@@ -564,8 +639,8 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h)
 					printf("%08x ", sc->t.st_value);
 					printf("%08x\n", ELF32_R_INFO(ELF32_R_SYM(info), sc->t.st_name));*/
 
-					current->t[0] = read_Elf32_Word(f);
-					int info = read_Elf32_Word(f);
+					current->t[0] = read_Elf32_Word(f, h.endianess);
+					int info = read_Elf32_Word(f, h.endianess);
 					current->t[1] = info;
 					current->t[2] = ELF32_R_TYPE(info);
 
