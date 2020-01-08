@@ -321,6 +321,23 @@ void print_section(FILE * f, SecHead s, int i)
 	printf("\n\n");
 }
 
+void write_section(FILE * lec, FILE * ec, SecHead s, int i)
+{
+	OneHeader *c = s.tete;
+	char cc;
+
+	for(int j=0 ; j<i ; j++)
+		c = c->suivant;
+
+	fseek(lec, c->t.sh_offset ,SEEK_SET);
+
+	for(int j=0 ; j < c->t.sh_size / 2; j++)
+	{
+		cc = read_quarter_word(lec);
+		fwrite(&cc, 1, 1, ec);
+	}
+}
+
 
 SymTab read_table_symboles(FILE * f, SecHead s)
 {
@@ -395,24 +412,32 @@ void print_table_symboles(SymTab st)
 
 
 
-void read_table_reimplantation(FILE * f, SecHead s, SymTab st)
+ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st)
 {
 	OneHeader *c = s.tete;
 	OneSymbol *sc = st.tete;
+
+	ReimpTab r;
+	r.tete = NULL;
+
+	OneReimp *current, *precedent;
+	current = malloc (sizeof(OneReimp));
+	r.tete = current;
+
 
 	for (int i = 0; i < s.nb; i++) 
 	{
 		// Chek type = SHT_REL ou RELA
 		if(c->t.sh_type == SHT_REL || c->t.sh_type == SHT_RELA)
 		{
-			printf("Section de réadressage '.rel.text' à l'adresse de décalage 0x%x contient %d entrées :\n", c->t.sh_offset, c->t.sh_size / 8);
-			printf("Offset   Info     Type     Val.-sym Noms-symboles\n");
+			r.nb = c->t.sh_size / 8;
+			r.offset = c->t.sh_offset;
 
 			fseek(f, c->t.sh_offset ,SEEK_SET); //Offset
 
 			for(int j=0 ; j < c->t.sh_size / 8 ; j++) // Size
 			{ 
-				printf("%08x ", read_word(f));
+				/*printf("%08x ", read_word(f));
 				int info = read_word(f);
 				printf("%08x ", info);
 				printf("%08x ", ELF32_R_TYPE(info)); // type
@@ -421,21 +446,69 @@ void read_table_reimplantation(FILE * f, SecHead s, SymTab st)
 					sc = sc->suivant;
 
 				printf("%08x ", sc->t.st_value);
-				printf("%08x\n", ELF32_R_INFO(ELF32_R_SYM(info), sc->t.st_name));
+				printf("%08x\n", ELF32_R_INFO(ELF32_R_SYM(info), sc->t.st_name));*/
+
+				current->t[0] = read_word(f);
+				int info = read_word(f);
+				current->t[1] = info;
+				current->t[2] = ELF32_R_TYPE(info);
+
+				for (int x=0 ; x< ELF32_R_SYM(info) ; x++)
+					sc = sc->suivant;
+
+				current->t[3] = sc->t.st_value;
+				current->t[4] = ELF32_R_INFO(ELF32_R_SYM(info), sc->t.st_name);
 
 				sc = st.tete;
+				precedent = current;
+				current = malloc (sizeof(OneReimp));
+				precedent->suivant = current;
 			}
 			printf("\n\n");
 		}
 		c = c->suivant;
 	}
+
+	return r;
 }
 
-StringTab read_string_table(FILE * f, Elf_Header head, SecHead s)
+void print_table_reimp(ReimpTab r)
+{
+	printf("Section de réadressage '.rel.text' à l'adresse de décalage 0x%x contient %d entrées :\n", r.offset, r.nb);
+	printf("[Nb]\tOffset   Info     Type     Val.-sym Noms-symboles\n");
+
+	OneReimp *c = r.tete;
+
+	for(int i=0 ; i < r.nb ; i++)
+	{
+		printf("[%d]\t", i);
+		printf("%08x ", c->t[0]);
+		printf("%08x ", c->t[1]);
+		printf("%08x ", c->t[2]);
+		printf("%08x ", c->t[3]);
+		printf("%08x\n", c->t[4]);
+
+		c = c->suivant;
+	}
+	printf("\n\n");
+}
+
+StringTab read_string_table(FILE * f, Elf_Header head, SecHead s, int nb)
 {
 	OneHeader *c = s.tete;
-	while(c->t.sh_type != SHT_STRTAB)
-		c = c->suivant;
+	for (int i=0 ; i<nb ; i++)
+	{
+		if (c->t.sh_type != SHT_STRTAB)
+		{
+			while(c->t.sh_type != SHT_STRTAB)
+				c = c->suivant;
+		}
+		else
+		{
+			c = c->suivant->suivant;
+		}
+	}
+
 
 	fseek(f, c->t.sh_offset ,SEEK_SET);
 

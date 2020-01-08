@@ -22,10 +22,13 @@ int main(int argc, char ** argv)
 	SecHead secHead = read_section_headers(fich_o, head);
 
 		// READING OF STRING TABLE
-		StringTab string = read_string_table(fich_o, head, secHead);
-		print_string_tab(string);
+		StringTab string1 = read_string_table(fich_o, head, secHead, 1);
+		print_string_tab(string1);
 
-	print_section_headers(secHead, string);
+		StringTab string2 = read_string_table(fich_o, head, secHead, 2);
+		print_string_tab(string2);
+
+	print_section_headers(secHead, string1);
 
 	
 
@@ -37,7 +40,8 @@ int main(int argc, char ** argv)
 	print_table_symboles(symTab);
 
 	//AFFICHER Table de réimplantation
-	read_table_reimplantation(fich_o, secHead, symTab);
+	ReimpTab r = read_table_reimplantation(fich_o, secHead, symTab);
+	print_table_reimp(r);
 
 	
 
