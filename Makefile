@@ -15,7 +15,7 @@ main2.o: main2.c utils.h fusion.h
 utils.o: utils.c utils.h
 	$(CC) $(CFLAGS) -c utils.c
 
-fusion.o: fusion.c fusion.h
+fusion.o: fusion.c fusion.h utils.h
 	$(CC) $(CFLAGS) -c fusion.c
 
 

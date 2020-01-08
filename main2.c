@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <elf.h>
+
 #include "utils.h"
 #include "fusion.h"
 
 int main(int argc, char ** argv)
 {
+	// TESTS
 	if (argc != 4) {
 		printf("3 arguments attendus.\n");
 		return 1;
@@ -31,8 +33,9 @@ int main(int argc, char ** argv)
 	a.s = read_section_headers(fich_o1, a.h);
 	a.string1 = read_string_table(fich_o1, a.h, a.s, 1);
 	a.string2 = read_string_table(fich_o1, a.h, a.s, 2);
-	a.st = read_table_symboles(fich_o1, a.s);
-	a.r = read_table_reimplantation(fich_o1, a.s, a.st);
+	a.st = read_table_symboles(fich_o1, a.s, a.h);
+	a.r = read_table_reimplantation(fich_o1, a.s, a.st, a.h);
+	a.f = fich_o1;
 
 	// 2eme FICHIER .o
 	OFile b;
@@ -40,12 +43,13 @@ int main(int argc, char ** argv)
 	b.s = read_section_headers(fich_o2, b.h);
 	b.string1 = read_string_table(fich_o2, b.h, b.s, 1);
 	b.string2 = read_string_table(fich_o2, b.h, b.s, 2);
-	b.st = read_table_symboles(fich_o2, b.s);
-	b.r = read_table_reimplantation(fich_o2, b.s, b.st);
+	b.st = read_table_symboles(fich_o2, b.s, a.h);
+	b.r = read_table_reimplantation(fich_o2, b.s, b.st, b.h);
+	a.f = fich_o2;
 
 	// Res FICHIER .o
 	OFile dest;
-	dest.l=f_dest;
+	dest.f = f_dest;
 	
 	
 	// FUSION

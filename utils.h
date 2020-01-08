@@ -18,7 +18,8 @@ typedef struct _OneHeader OneHeader;
 
 struct _OneHeader
 {
-	Elf32_Shdr t;
+	Elf32_Shdr t32;
+	Elf64_Shdr t64;
 	OneHeader * suivant;
 };
 
@@ -35,7 +36,8 @@ typedef struct _OneSymbol OneSymbol;
 
 struct _OneSymbol
 {
-	Elf32_Sym t;
+	Elf32_Sym t32;
+	Elf64_Sym t64;
 	OneSymbol * suivant;
 };
 
@@ -91,11 +93,42 @@ typedef struct
 	StringTab string1;
 	StringTab string2;
 	ReimpTab r;
-	FILE *l;
+	FILE *f;
 } OFile;
 
 
+// POWER
+int power(int a, int b);
+//calcul la puissance
 
+//READ
+
+int read_Elf32_Addr (FILE *f);
+//Lis element taille 4 du fichier FILE sur 32 bit
+
+int read_Elf64_Addr (FILE *f);
+//Lis element taille 8 du fichier FILE sur 64 bit
+
+int read_Elf32_Half (FILE *f);
+//Lis element taille 2 du fichier FILE sur 32 bit 
+
+int read_Elf32_Off (FILE *f);
+//Lis element taille 4 du fichier FILE sur 32 bit
+
+int read_Elf64_Off (FILE *f);
+//Lis element taille 8 du fichier FILE sur 64 bit
+
+int read_Elf32_Sword (FILE *f);
+//Lis element taille 4 du fichier FILE sur 32 bit
+
+int read_Elf32_Word (FILE *f);
+//Lis element taille 4 du fichier FILE sur 32 bit
+
+int read_Elf64_Word (FILE *f);
+//Lis element taille 8 du fichier FILE sur 64 bit
+
+int read_unsigned_char (FILE *f);
+//Lis element taille 1 du fichier FILE sur 32 bit
 
 // PARTIE 1.1
 Elf_Header read_header(FILE * f);
@@ -112,12 +145,12 @@ void print_section(FILE * f, SecHead secHead, int i);
 
 
 // PARTIE 1.4
-SymTab read_table_symboles(FILE * f, SecHead st);
+SymTab read_table_symboles(FILE * f, SecHead st, Elf_Header h);
 void print_table_symboles(SymTab st, StringTab string);
 
 
 // PARTIE 1.5
-ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st);
+ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h);
 void print_table_reimp(ReimpTab r, StringTab string2, StringTab string1);
 
 

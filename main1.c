@@ -33,17 +33,17 @@ int main(int argc, char ** argv)
 
 	print_section_headers(a.s, a.string1);
 
-	
+
 
 	//AFFICHER SECTION
 	print_section(fich_o, a.s, 3);
 
 	//AFFICHER TABLE SYMBOLES
-	a.st = read_table_symboles(fich_o, a.s);
+	a.st = read_table_symboles(fich_o, a.s, a.h);
 	print_table_symboles(a.st, a.string2);
 
 	//AFFICHER Table de réimplantation
-	a.r = read_table_reimplantation(fich_o, a.s, a.st);
+	a.r = read_table_reimplantation(fich_o, a.s, a.st, a.h);
 	print_table_reimp(a.r, a.string2, a.string1);
 
 	

@@ -2,6 +2,7 @@
 #define __FUSION_H__
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <elf.h>
 #include "utils.h"
 
@@ -18,8 +19,10 @@ On a vu les choses de la manière suivante:
 	- Dans un troiseme temps on traite les rennomages des symboles
 	- Dans un dernier temps on ecrit le contenu de la structure OFile dest dans le fichier dest.l
 */
+
+
 void write_header(OFile dest);
-void write_section(FILE * lec, FILE * ec, SecHead s, int i);
+void write_section(OFile source, OFile dest, int i);
 void write_section_header(OFile dest);
 #endif
 
