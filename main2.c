@@ -28,24 +28,10 @@ int main(int argc, char ** argv)
 	}
 
 	// 1er FICHIER .o
-	OFile a;
-	a.h = read_header(fich_o1);
-	a.s = read_section_headers(fich_o1, a.h);
-	a.string1 = read_string_table(fich_o1, a.h, a.s, 1);
-	a.string2 = read_string_table(fich_o1, a.h, a.s, 2);
-	a.st = read_table_symboles(fich_o1, a.s, a.h);
-	a.r = read_table_reimplantation(fich_o1, a.s, a.st, a.h);
-	a.f = fich_o1;
+	OFile a = initOFile(fich_o1);
 
 	// 2eme FICHIER .o
-	OFile b;
-	b.h = read_header(fich_o2);
-	b.s = read_section_headers(fich_o2, b.h);
-	b.string1 = read_string_table(fich_o2, b.h, b.s, 1);
-	b.string2 = read_string_table(fich_o2, b.h, b.s, 2);
-	b.st = read_table_symboles(fich_o2, b.s, a.h);
-	b.r = read_table_reimplantation(fich_o2, b.s, b.st, b.h);
-	a.f = fich_o2;
+	OFile b = initOFile(fich_o2);
 
 	// Res FICHIER .o
 	OFile dest;

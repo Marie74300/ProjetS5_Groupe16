@@ -439,13 +439,11 @@ void print_table_symboles(SymTab st, StringTab string)
 
 // REIMPLEMENTATION TABLE
 
-ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h)
+ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h, int nb)
 {
 	OneHeader *c = s.tete;
 	OneSymbol *sc = st.tete;
 
-	/*ListReimpTab L;
-	L.tete = NULL;*/
 	ReimpTab r;
 	r.tete = NULL;
 
@@ -453,93 +451,83 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h)
 	current = malloc (sizeof(OneReimp));
 	r.tete = current;
 
+	int compt =0;
+	int nbFinal = -1;
+
 
 	for (int i = 0; i < s.nb; i++){
 		if(h.architecture==1){
 			// Chek type = SHT_REL ou RELA
 			if(c->t32.sh_type == SHT_REL || c->t32.sh_type == SHT_RELA)
 			{
-				r.nb = c->t32.sh_size / 8;
-				r.offset = c->t32.sh_offset;
+				if (compt == nb)
+				{
+					r.nb = c->t32.sh_size / 8;
+					r.offset = c->t32.sh_offset;
 
-				fseek(f, c->t32.sh_offset ,SEEK_SET); //Offset
+					fseek(f, c->t32.sh_offset ,SEEK_SET); //Offset
 
-				for(int j=0 ; j < c->t32.sh_size / 8 ; j++) // Size
-				{ 
-					/*printf("%08x ", read_word(f));
-					int info = read_word(f);
-					printf("%08x ", info);
-					printf("%08x ", ELF32_R_TYPE(info)); // type
+					for(int j=0 ; j < c->t32.sh_size / 8 ; j++) // Size
+					{ 
+						current->t32.r_offset = read_Elf32_Addr(f, h.endianess);
+						current->t32.r_info = read_Elf32_Word(f, h.endianess);
 
-					for (int x=0 ; x< ELF32_R_SYM(info) ; x++)
-						sc = sc->suivant;
+						for (int x=0 ; x< ELF32_R_SYM(current->t32.r_info) ; x++)
+							sc = sc->suivant;
 
-					printf("%08x ", sc->t.st_value);
-					printf("%08x\n", ELF32_R_INFO(ELF32_R_SYM(info), sc->t.st_name));*/
+						current->value = sc->t32.st_value;
+						current->name = sc->t32.st_name;
 
-					current->t32.r_offset = read_Elf32_Addr(f, h.endianess);
-					current->t32.r_info = read_Elf32_Word(f, h.endianess);
-					/*current->t[1] = info;
-					current->t[2] = ELF32_R_TYPE(info);
-					*/
-					for (int x=0 ; x< ELF32_R_SYM(current->t32.r_info) ; x++)
-						sc = sc->suivant;
+						sc = st.tete;
+						precedent = current;
+						current = malloc (sizeof(OneReimp));
+						precedent->suivant = current;
 
-					current->value = sc->t32.st_value;
-					current->name = sc->t32.st_name;
-
-					sc = st.tete;
-					precedent = current;
-					current = malloc (sizeof(OneReimp));
-					precedent->suivant = current;
+						compt++;
+					}
+					nbFinal = compt;
 				}
-				printf("\n\n");
+				else compt++;
 			}
 		}
 		else if (h.architecture==2){
 			// Chek type = SHT_REL ou RELA
 			if(c->t64.sh_type == SHT_REL || c->t64.sh_type == SHT_RELA)
 			{
-				r.nb = c->t64.sh_size / 8;
-				r.offset = c->t64.sh_offset;
+				if (compt == nb)
+				{
+					r.nb = c->t64.sh_size / 8;
+					r.offset = c->t64.sh_offset;
 
-				fseek(f, c->t64.sh_offset ,SEEK_SET); //Offset
+					fseek(f, c->t64.sh_offset ,SEEK_SET); //Offset
 
-				for(int j=0 ; j < c->t64.sh_size / 8 ; j++) // Size
-				{ 
-					/*printf("%08x ", read_word(f));
-					int info = read_word(f);
-					printf("%08x ", info);
-					printf("%08x ", ELF32_R_TYPE(info)); // type
+					for(int j=0 ; j < c->t64.sh_size / 8 ; j++) // Size
+					{ 
+						current->t64.r_offset = read_Elf64_Addr(f, h.endianess);
+						current->t64.r_info = read_Elf64_Word(f, h.endianess);
 
-					for (int x=0 ; x< ELF32_R_SYM(info) ; x++)
-						sc = sc->suivant;
+						for (int x=0 ; x < ELF32_R_SYM(current->t64.r_info) ; x++)
+							sc = sc->suivant;
 
-					printf("%08x ", sc->t.st_value);
-					printf("%08x\n", ELF32_R_INFO(ELF32_R_SYM(info), sc->t.st_name));*/
+						current->value = sc->t64.st_value;
+						current->name = sc->t64.st_name;
 
-					current->t64.r_offset = read_Elf64_Addr(f, h.endianess);
-					current->t64.r_info = read_Elf64_Word(f, h.endianess);
-					/*current->t[1] = info;
-					current->t[2] = ELF32_R_TYPE(info);
-					*/
-					for (int x=0 ; x < ELF32_R_SYM(current->t64.r_info) ; x++)
-						sc = sc->suivant;
+						sc = st.tete;
+						precedent = current;
+						current = malloc (sizeof(OneReimp));
+						precedent->suivant = current;
 
-					current->value = sc->t64.st_value;
-					current->name = sc->t64.st_name;
-
-					sc = st.tete;
-					precedent = current;
-					current = malloc (sizeof(OneReimp));
-					precedent->suivant = current;
+						compt++;
+					}
+					nbFinal = compt;
 				}
-				printf("\n\n");
+				else compt++;
 			}
 		}
 		c = c->suivant;
 	}
 
+	if (nbFinal == -1) r.offset = -1;
 	return r;
 }
 
@@ -569,15 +557,36 @@ void print_table_reimp(ReimpTab r, StringTab string2, StringTab string1)
 ListReimpTab read_table_reimplantation_new(FILE * f, SecHead s, SymTab st, Elf_Header h)
 {
 	ListReimpTab LR;
-	ReimpTab r = read_table_reimplantation(f, s, st, h);
 
-	OneList *c = malloc(sizeof(OneList));
-	c->r = r;
+	OneList *c, *p;
+	c = malloc(sizeof(OneList));
 	LR.tete = c;
+	LR.nb = 0;
+
+	ReimpTab r = read_table_reimplantation(f, s, st, h, 0);
+
+	while (r.offset != -1)
+	{
+		c->r = r;
+		LR.nb ++;
+		
+		r = read_table_reimplantation(f, s, st, h, LR.nb);
+		
+		p = c;
+		c = malloc(sizeof(OneList));
+		p->suivant = c;
+	}
+
 	return LR;
 }
-void print_table_reimp_new(ListReimpTab r, StringTab string2, StringTab string1)
+void print_table_reimp_new(ListReimpTab LR, StringTab string2, StringTab string1)
 {
+	OneList *c = LR.tete;
+	for(int i=0 ; i < LR.nb ; i++)
+	{
+		print_table_reimp (c->r, string2, string1);
+		c = c->suivant;
+	}
 }
 
 // STRING TABLE
@@ -678,7 +687,7 @@ OFile initOFile(FILE * fich_o)
 	a.string1 = read_string_table(fich_o, a.h, a.s, 1);
 	a.string2 = read_string_table(fich_o, a.h, a.s, 2);
 	a.st = read_table_symboles(fich_o, a.s, a.h);
-	a.r = read_table_reimplantation(fich_o, a.s, a.st, a.h);
+	a.LR = read_table_reimplantation_new(fich_o, a.s, a.st, a.h);
 	return a;
 }
 
@@ -688,7 +697,7 @@ void printOFile(OFile a)
 	print_section_headers(a.s, a.string1);
 	print_section(a.f, a.s, 3);
 	print_table_symboles(a.st, a.string2);
-	print_table_reimp(a.r, a.string2, a.string1);
+	print_table_reimp_new(a.LR, a.string2, a.string1);
 }
 
 void end(OFile a)
@@ -710,14 +719,24 @@ void end(OFile a)
 		c2 = c2->suivant;	
 		free(p2);
 	}
-
-	OneReimp *c3 = a.r.tete;
-	OneReimp *p3;
-	while(c3 != NULL)
+	
+	OneList *cg = a.LR.tete;
+	OneList *pg;
+	while (cg != NULL)
 	{
-		p3 = c3;
-		c3 = c3->suivant;	
-		free(p3);
+		pg = cg;
+		cg = cg->suivant;
+		
+		OneReimp *c3 = pg->r.tete;
+		OneReimp *p3;
+		while(c3 != NULL)
+		{
+			p3 = c3;
+			c3 = c3->suivant;	
+			free(p3);
+		}
+
+		free(pg);
 	}
 
 	OneString *c4 = a.string1.tete;
