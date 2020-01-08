@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <elf.h>
 #include "utils.h"
 
@@ -75,7 +76,7 @@ Elf_Header read_header(FILE * f)
 		head.h32.e_shstrndx = read_half_word(f);
 	}
 
-	else if (head.h32.e_ident[EI_CLASS] == 2)
+	else if (head.h64.e_ident[EI_CLASS] == 2)
 	{
 		head.architecture = 2;
 		
@@ -288,7 +289,8 @@ void print_section_headers(SecHead s, StringTab string)
 
 		//printf("%x\t", c->t.sh_name);
 		//Ici l'affichage est adapté uniquement pour nos 2 exemples (es.o accessmem.o)
-		if(i==2 || i==5 || i==6){printf("%s\t", string_pos(string, c->t.sh_name));}else {printf("%s\t\t", string_pos(string, c->t.sh_name));}
+		print_string(string, c->t.sh_name);
+		if(i!=2 && i!=5 && i!=6){printf("\t");}
 		if(c->t.sh_type==0){printf("SHT_NULL\t");}else if(c->t.sh_type==1){printf("SHT_PROGBITS\t");}else if(c->t.sh_type==2){printf("SHT_SYMTAB\t");}else if(c->t.sh_type==3){printf("SHT_STRTAB\t");}else if(c->t.sh_type==4){printf("SHT_RELA\t\t");}else if(c->t.sh_type==5){printf("SHT_HASH\t");}else if(c->t.sh_type==6){printf("SHT_DYNAMIC\t");}else if(c->t.sh_type==7){printf("SHT_NOTE\t");}else if(c->t.sh_type==8){printf("SHT_NOBITS\t");}else if(c->t.sh_type==9){printf("SHT_REL\t\t");}else if(c->t.sh_type==10){printf("SHT_SHLIB\t");}else if(c->t.sh_type==11){printf("SHT_DYNSYM\t");}else if(c->t.sh_type==0x70000000){printf("SHT_LOPROC\t");}else if(c->t.sh_type==0x7fffffff){printf("SHT_HIPROC\t");}else if(c->t.sh_type==0x80000000){printf("SHT_LOUSER\t");}else if(c->t.sh_type==0xffffffff){printf("SHT_HIUSER\t");}else{if(i==5){printf("%x\t", c->t.sh_type);}else{printf("%x\t\t", c->t.sh_type);}}
 		printf("%x\t", c->t.sh_addr);
 		printf("%x\t", c->t.sh_offset);
@@ -320,24 +322,6 @@ void print_section(FILE * f, SecHead s, int i)
 		printf("%02x ", read_quarter_word(f));
 	printf("\n\n");
 }
-
-void write_section(FILE * lec, FILE * ec, SecHead s, int i)
-{
-	OneHeader *c = s.tete;
-	char cc;
-
-	for(int j=0 ; j<i ; j++)
-		c = c->suivant;
-
-	fseek(lec, c->t.sh_offset ,SEEK_SET);
-
-	for(int j=0 ; j < c->t.sh_size / 2; j++)
-	{
-		cc = read_quarter_word(lec);
-		fwrite(&cc, 1, 1, ec);
-	}
-}
-
 
 SymTab read_table_symboles(FILE * f, SecHead s)
 {
@@ -388,7 +372,7 @@ SymTab read_table_symboles(FILE * f, SecHead s)
 	return st;
 }
 
-void print_table_symboles(SymTab st)
+void print_table_symboles(SymTab st, StringTab string)
 {
 	printf("La table de symboles contient %d entrées :\n", st.nb);
 	printf("[Nr]\tName     Value    Size     Info     Other    shndx\n");
@@ -398,7 +382,7 @@ void print_table_symboles(SymTab st)
 	for(int i=0 ; i < st.nb ; i++)
 	{
 		printf("[%d]\t", i);
-		printf("%08x ", current->t.st_name);
+		print_string(string, current->t.st_name);
 		printf("%08x ", current->t.st_value);
 		printf("%08x ", current->t.st_size);
 		printf("%02x       ", current->t.st_info);
@@ -472,7 +456,7 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st)
 	return r;
 }
 
-void print_table_reimp(ReimpTab r)
+void print_table_reimp(ReimpTab r, StringTab string2, StringTab string1)
 {
 	printf("Section de réadressage '.rel.text' à l'adresse de décalage 0x%x contient %d entrées :\n", r.offset, r.nb);
 	printf("[Nb]\tOffset   Info     Type     Val.-sym Noms-symboles\n");
@@ -486,7 +470,9 @@ void print_table_reimp(ReimpTab r)
 		printf("%08x ", c->t[1]);
 		printf("%08x ", c->t[2]);
 		printf("%08x ", c->t[3]);
-		printf("%08x\n", c->t[4]);
+		//printf("%08x ", c->t[4]);
+		print_string(string2, (c->t[4] & 0xff));
+		printf("\n");
 
 		c = c->suivant;
 	}
@@ -519,42 +505,24 @@ StringTab read_string_table(FILE * f, Elf_Header head, SecHead s, int nb)
 	OneString *precedent;
 
 	char cc;
-	int lg = 0;
-	int compt = 0;
 
 	current = malloc (sizeof(OneString));
-	current->pos = 1;
 	string.tete = current;
 
 	for(int i=0 ; i<c->t.sh_size ; i++)
 	{
 		cc = read_quarter_word(f);
-		
+		current->c = cc;
+		string.nb ++;
 
-		if (cc != '\0')
-		{
-			current->t[lg] = cc;
-			lg ++;
-		}
-		else if (compt != 0)
-		{
-			current->t[lg] = '\0';
-	
-			lg = 0;
-			string.nb ++;
-
-			precedent = current;
-			current = malloc (sizeof(OneString));
-			precedent->suivant = current;
-
-			current->pos = compt + 1;
-		}
-		compt++;
+		precedent = current;
+		current = malloc (sizeof(OneString));
+		precedent->suivant = current;
 	}
 	return string;
 }
 
-void print_string_tab(StringTab string)
+/*void print_string_tab(StringTab string)
 {
 	printf("La table des chaines de caracteres contient %d entrées :\n", string.nb);
 
@@ -569,17 +537,29 @@ void print_string_tab(StringTab string)
 		current = current->suivant;
 	}
 	printf("\n\n");
-}
+}*/
 
-char * string_pos(StringTab string, int pos)
+void  print_string(StringTab string, int pos)
 {
 	OneString *current = string.tete;
-	
-	while (current != NULL && pos != current->pos)
+
+	if(pos <= string.nb){
+		for(int i = 0; i < pos; i++){
+			current = current->suivant;
+		}
+
+		while(current->c != '\0'){			
+			printf("%c", current->c);	
+			current = current->suivant;
+		}
+	}
+	printf("\t");
+
+	/*while (current != NULL && pos != current->pos)
 		current = current->suivant;
 
 	if(current == NULL) return "";
-	return current->t;
+	return current->t;*/
 }
 
 

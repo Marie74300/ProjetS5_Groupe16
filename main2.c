@@ -19,8 +19,8 @@ int main(int argc, char ** argv)
 		printf("Erreur ouverture en lecture 2.\n");
 		return 3;
 	}
-	FILE *dest = fopen (argv[3], "w");
-	if (dest == NULL){
+	FILE *f_dest = fopen (argv[3], "w");
+	if (f_dest == NULL){
 		printf("Erreur ouverture en ecriture.\n");
 		return 4;
 	}
@@ -43,6 +43,11 @@ int main(int argc, char ** argv)
 	b.st = read_table_symboles(fich_o2, b.s);
 	b.r = read_table_reimplantation(fich_o2, b.s, b.st);
 
+	// Res FICHIER .o
+	OFile dest;
+	dest.l=f_dest;
+	
+	
 	// FUSION
 	fusion (a, b, dest);
 	
@@ -54,7 +59,7 @@ int main(int argc, char ** argv)
 
 	fclose(fich_o1);
 	fclose(fich_o2);
-	fclose(dest);
+	fclose(f_dest);
 
 	return 0;
 }

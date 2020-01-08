@@ -52,8 +52,7 @@ typedef struct _OneString OneString;
 
 struct _OneString
 {
-	char t[25];
-	int pos;
+	char c;
 	OneString * suivant;
 };
 
@@ -110,23 +109,22 @@ void print_section_headers(SecHead s, StringTab string);
 
 // PARTIE 1.3
 void print_section(FILE * f, SecHead secHead, int i);
-void write_section(FILE * lec, FILE *ec, SecHead secHead, int i);
 
 
 // PARTIE 1.4
 SymTab read_table_symboles(FILE * f, SecHead st);
-void print_table_symboles(SymTab st);
+void print_table_symboles(SymTab st, StringTab string);
 
 
 // PARTIE 1.5
 ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st);
-void print_table_reimp(ReimpTab r);
+void print_table_reimp(ReimpTab r, StringTab string2, StringTab string1);
 
 
 // STRING TAB
 StringTab read_string_table(FILE * f, Elf_Header head, SecHead s, int nb);
-void print_string_tab(StringTab string);
-char * string_pos(StringTab string, int pos);
+//void print_string_tab(StringTab string);
+void print_string(StringTab string, int pos);
 
 
 // UTILS
