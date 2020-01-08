@@ -116,7 +116,6 @@ void print_section_headers(SecHead s, StringTab string);
 
 // STRING TAB
 StringTab read_string_table(FILE * f, Elf_Header head, SecHead s, int nb);
-//void print_string_tab(StringTab string);
 void print_string(StringTab string, int pos);
 
 // PARTIE 1.4
@@ -126,7 +125,6 @@ void print_table_symboles(SymTab st, StringTab string);
 // PARTIE 1.5
 ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h, int nb);
 void print_table_reimp(ReimpTab r, StringTab string2, StringTab string1);
-	// NEW
 ListReimpTab read_table_reimplantation_new(FILE * f, SecHead s, SymTab st, Elf_Header h);
 void print_table_reimp_new(ListReimpTab LR, StringTab string2, StringTab string1);
 

@@ -3,6 +3,7 @@
 
 #include "utils.h"
 #include "fusion.h"
+#include "es.h"
 
 int main(int argc, char ** argv)
 {
@@ -27,10 +28,8 @@ int main(int argc, char ** argv)
 		return 4;
 	}
 
-	// 1er FICHIER .o
-	OFile a = initOFile(fich_o1);
 
-	// 2eme FICHIER .o
+	OFile a = initOFile(fich_o1);
 	OFile b = initOFile(fich_o2);
 
 	// Res FICHIER .o
@@ -41,8 +40,7 @@ int main(int argc, char ** argv)
 	// FUSION
 	fusion (a, b, dest);
 	
-
-
+	
 
 	end(a);
 	end(b);

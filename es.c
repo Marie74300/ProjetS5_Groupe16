@@ -1,5 +1,8 @@
 #include "es.h"
 
+
+// LECTURE
+
 int read_Elf32_Addr (FILE *f, int endianess)
 {
 	if (endianess == 1)
@@ -144,3 +147,50 @@ int read_unsigned_char (FILE *f)
 	c = c & 0x00FF;
 	return c;
 }
+
+// ECRITURE
+
+
+void write_quarter_word (int c, FILE *f)
+{
+	fwrite(&c, 1, 1, f);
+}
+
+void write_half_word (int c, FILE *f, int endianess)
+{
+	if (endianess == 1)
+		fwrite(&c, 2, 1, f);
+	else 
+	{
+		write_quarter_word ((c & 0xFF00) >> 8, f);
+		write_quarter_word (c & 0x00FF, f);
+	}
+}
+void write_word (int c, FILE *f, int endianess)
+{
+	if (endianess == 1)
+		fwrite(&c, 4, 1, f);
+	else 
+	{
+		write_half_word ((c & 0xFFFF0000) >> 16, f, endianess);
+		write_half_word (c & 0x0000FFFF, f, endianess);
+	}
+}
+void write_double_word (int c, FILE *f, int endianess)
+{
+	if (endianess == 1)
+		fwrite(&c, 8, 1, f);
+	else 
+	{
+		write_word ((c & 0xFFFFFFFF00000000) >> 32, f, endianess);
+		write_word (c & 0x00000000FFFFFFFF, f, endianess);
+	}
+}
+
+
+
+
+
+
+
+

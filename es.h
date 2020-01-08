@@ -34,4 +34,12 @@ int read_Elf64_Word (FILE *f, int endianess);
 int read_unsigned_char (FILE *f);
 //Lis element taille 1 du fichier FILE sur 32 bit
 
+
+// WRITE
+
+void write_quarter_word (int c, FILE *f);
+void write_half_word (int c, FILE *f, int endianess);
+void write_word (int c, FILE *f, int endianess);
+void write_double_word (int c, FILE *f, int endianess);
+
 #endif
