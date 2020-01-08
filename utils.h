@@ -62,7 +62,9 @@ void print_table_symboles(SymTab st);
 void read_table_reimplantation(FILE * f, SecHead s, SymTab st);
 
 // UTILS
-void print_string_table(Elf_Header head, SecHead s);
+void print_string_table(FILE * f, Elf_Header head, SecHead s);
+
+void end(SecHead s, SymTab st);
 
 #endif
 

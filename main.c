@@ -33,8 +33,12 @@ int main(int argc, char ** argv)
 	read_table_reimplantation(fich_o, secHead, symTab);
 
 	// Read string TABLE TODO
-	print_string_table(head, secHead);
+	print_string_table(fich_o, head, secHead);
 
+
+
+
+	end(secHead, symTab);
 	fclose(fich_o);
 	return 0;
 }

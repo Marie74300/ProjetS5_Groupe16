@@ -419,11 +419,11 @@ void read_table_reimplantation(FILE * f, SecHead s, SymTab st)
 	}
 }
 
-void print_string_table(Elf_Header head, SecHead s)
+void print_string_table(FILE * f, Elf_Header head, SecHead s)
 {
 	printf("Affichage de la table des string : \n");
 
-	int e_shstrndx = (head.architecture == 1) ? head.h32.e_shstrndx : head.h64.e_shstrndx;
+	/*int e_shstrndx = (head.architecture == 1) ? head.h32.e_shstrndx : head.h64.e_shstrndx;
 	int index = e_shstrndx & 0xff;
 
 	OneHeader *c = s.tete;
@@ -431,7 +431,37 @@ void print_string_table(Elf_Header head, SecHead s)
 		c = c->suivant;
 
 	printf("%x\t",c->t.sh_name);
-	printf("%x\n",index);
+	printf("%x\n",index);*/
+	
+	OneHeader *c = s.tete;
+	for(int i=0 ; i<6 ; i++)
+		c = c->suivant;
+
+	fseek(f, c->t.sh_offset ,SEEK_SET);
+
+	for(int i=0 ; i<c->t.sh_size ; i++)
+		printf("%c", read_quarter_word(f));
+	printf("\n");
 }
 
+void end(SecHead s, SymTab st)
+{
+	OneHeader *c = s.tete;
+	OneHeader *p;
+	while(c != NULL)
+	{
+		p = c;
+		c = c->suivant;	
+		free(p);
+	}
+	
+	OneSymbol *c1 = st.tete;
+	OneSymbol *p1;
+	while(c1 != NULL)
+	{
+		p1 = c1;
+		c1 = c1->suivant;	
+		free(p1);
+	}
+}
 
