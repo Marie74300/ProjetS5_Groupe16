@@ -92,6 +92,7 @@ typedef struct
 	StringTab string1;
 	StringTab string2;
 	ReimpTab r;
+	FILE *l;
 } OFile;
 
 
