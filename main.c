@@ -15,20 +15,18 @@ int main(int argc, char ** argv)
 	}
 
 	// READING OF THE ELF HEADER
-	Elf32_Ehdr head = read_header(fich_o);
+	Elf_Header head = read_header(fich_o);
 	print_header(head);
 
 	// READING OF SECTION HEADERS
-	SecHead secHead;
-	secHead.nb = head.e_shnum;
-	secHead = read_section_headers(fich_o, head, secHead);
+	SecHead secHead = read_section_headers(fich_o, head);
+	print_section_headers(secHead);
 
 	//AFFICHER SECTION
 	print_section(fich_o, secHead, 3);
 
 	//AFFICHER TABLE SYMBOLES
-	SymTab symTab;
-	symTab = read_table_symboles(fich_o, secHead, symTab);
+	SymTab symTab = read_table_symboles(fich_o, secHead);
 	print_table_symboles(symTab);
 
 	//AFFICHER Table de réimplantation
@@ -40,3 +38,4 @@ int main(int argc, char ** argv)
 	fclose(fich_o);
 	return 0;
 }
+
