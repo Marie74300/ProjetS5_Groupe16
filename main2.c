@@ -49,10 +49,13 @@ int main(int argc, char ** argv)
 
 
 
+	end(a);
+	end(b);
 
 	fclose(fich_o1);
 	fclose(fich_o2);
 	fclose(dest);
+
 	return 0;
 }
 

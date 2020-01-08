@@ -130,7 +130,7 @@ char * string_pos(StringTab string, int pos);
 
 
 // UTILS
-void end(SecHead s, SymTab st);
+void end(OFile a);
 
 #endif
 

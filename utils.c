@@ -584,24 +584,51 @@ char * string_pos(StringTab string, int pos)
 
 
 
-void end(SecHead s, SymTab st)
+void end(OFile a)
 {
-	OneHeader *c = s.tete;
-	OneHeader *p;
-	while(c != NULL)
-	{
-		p = c;
-		c = c->suivant;	
-		free(p);
-	}
-	
-	OneSymbol *c1 = st.tete;
-	OneSymbol *p1;
+	OneHeader *c1 = a.s.tete;
+	OneHeader *p1;
 	while(c1 != NULL)
 	{
 		p1 = c1;
 		c1 = c1->suivant;	
 		free(p1);
+	}
+	
+	OneSymbol *c2 = a.st.tete;
+	OneSymbol *p2;
+	while(c2 != NULL)
+	{
+		p2 = c2;
+		c2 = c2->suivant;	
+		free(p2);
+	}
+
+	OneReimp *c3 = a.r.tete;
+	OneReimp *p3;
+	while(c3 != NULL)
+	{
+		p3 = c3;
+		c3 = c3->suivant;	
+		free(p3);
+	}
+
+	OneString *c4 = a.string1.tete;
+	OneString *p4;
+	while(c4 != NULL)
+	{
+		p4 = c4;
+		c4 = c4->suivant;	
+		free(p4);
+	}
+
+	OneString *c5 = a.string2.tete;
+	OneString *p5;
+	while(c5 != NULL)
+	{
+		p5 = c5;
+		c5 = c5->suivant;	
+		free(p5);
 	}
 }
 
