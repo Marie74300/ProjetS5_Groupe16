@@ -3,13 +3,13 @@
 
 typedef struct
 {
-	int t[10][10];
+	Elf32_Shdr t[10];
 	int nb;
 } SecHead;
 
 typedef struct
 {
-	int t[100][6]; //Todo replace 100 with allocation
+	Elf32_Sym t[100]; //Todo replace 100 with allocation
 	int nb;
 } SymTab;
 
@@ -37,4 +37,5 @@ void print_table_symboles(SymTab symTab);
 
 void read_table_reimplantation(FILE * f, SecHead secHead, SymTab symTab);
 
+void print_string_table(Elf32_Ehdr head, SecHead secHead);
 #endif

@@ -18,17 +18,13 @@ int main(int argc, char ** argv)
 	Elf32_Ehdr head = read_header(fich_o);
 	print_header(head);
 
-
-	// Read string TABLE
-	//print_string_table() TODO
-
 	// READING OF SECTION HEADERS
 	SecHead secHead;
 	secHead.nb = head.e_shnum;
 	secHead = read_section_headers(fich_o, head, secHead);
 
 	//AFFICHER SECTION
-	print_section(fich_o, secHead, 6);
+	print_section(fich_o, secHead, 3);
 
 	//AFFICHER TABLE SYMBOLES
 	SymTab symTab;
@@ -37,6 +33,9 @@ int main(int argc, char ** argv)
 
 	//AFFICHER Table de réimplantation
 	read_table_reimplantation(fich_o, secHead, symTab);
+
+	// Read string TABLE TODO
+	print_string_table(head, secHead);
 
 	fclose(fich_o);
 	return 0;

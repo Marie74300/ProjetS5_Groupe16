@@ -128,16 +128,16 @@ SecHead read_section_headers(FILE * f, Elf32_Ehdr h, SecHead s)
 	fseek(f, h.e_shoff ,SEEK_SET);
 
 	for(int i=0 ; i<h.e_shnum ; i++){
-		s.t[i][0] = read_word(f);
-		s.t[i][1] = read_word(f);
-		s.t[i][2] = read_word(f);
-		s.t[i][3] = read_word(f);
-		s.t[i][4] = read_word(f);
-		s.t[i][5] = read_word(f);
-		s.t[i][6] = read_word(f);
-		s.t[i][7] = read_word(f);
-		s.t[i][8] = read_word(f);
-		s.t[i][9] = read_word(f);
+		s.t[i].sh_name = read_word(f);
+		s.t[i].sh_type = read_word(f);
+		s.t[i].sh_flags = read_word(f);
+		s.t[i].sh_addr = read_word(f);
+		s.t[i].sh_offset = read_word(f);
+		s.t[i].sh_size = read_word(f);
+		s.t[i].sh_link = read_word(f);
+		s.t[i].sh_info = read_word(f);
+		s.t[i].sh_addralign = read_word(f);
+		s.t[i].sh_entsize = read_word(f);
 	}
 
 	printf("Section Headers:\n");
@@ -145,16 +145,16 @@ SecHead read_section_headers(FILE * f, Elf32_Ehdr h, SecHead s)
 
 	for(int i=0 ; i<s.nb ; i++){
 		printf("[%d]\t", i);
-		printf("%x\t", s.t[i][0]);
-		printf("%x\t", s.t[i][1]);
-		printf("%x\t", s.t[i][2]);
-		printf("%x\t", s.t[i][3]);
-		printf("%x\t", s.t[i][4]);
-		printf("%x\t", s.t[i][5]);
-		printf("%x\t", s.t[i][6]);
-		printf("%x\t", s.t[i][7]);
-		printf("%x\t\t", s.t[i][8]);
-		printf("%x\n", s.t[i][9]);
+		printf("%x\t", s.t[i].sh_name);
+		printf("%x\t", s.t[i].sh_type);
+		printf("%x\t", s.t[i].sh_flags);
+		printf("%x\t", s.t[i].sh_addr);
+		printf("%x\t", s.t[i].sh_offset);
+		printf("%x\t", s.t[i].sh_size);
+		printf("%x\t", s.t[i].sh_link);
+		printf("%x\t", s.t[i].sh_info);
+		printf("%x\t\t", s.t[i].sh_addralign);
+		printf("%x\n", s.t[i].sh_entsize);
 	}
 	printf("\n");
 
@@ -185,10 +185,10 @@ SecHead read_section_headers(FILE * f, Elf32_Ehdr h, SecHead s)
 void print_section(FILE * f, SecHead secHead, int i)
 {
 	printf("Affichage de la section %d:\n", i);
-	fseek(f, secHead.t[i][4] ,SEEK_SET);
+	fseek(f, secHead.t[i].sh_offset ,SEEK_SET);
 
-	for(int j=0 ; j < secHead.t[i][5] / 2; j++)
-		printf("%x ", read_quarter_word(f));
+	for(int j=0 ; j < secHead.t[i].sh_size / 2; j++)
+		printf("%08x ", read_quarter_word(f));
 	printf("\n\n");
 }
 
@@ -196,21 +196,21 @@ SymTab read_table_symboles(FILE * f, SecHead secHead, SymTab symTab)
 {
 	for (int i = 0; i < secHead.nb; i++) {
 		//Check for type == SHT_REL or SHT_RELA
-		if(secHead.t[i][1] == SHT_REL || secHead.t[i][1] == SHT_RELA){
+		if(secHead.t[i].sh_type == SHT_REL || secHead.t[i].sh_type == SHT_RELA){
 			//Get the index of the symbol table section header
-			int index = secHead.t[i][6];
+			int index = secHead.t[i].sh_link;
 
-			symTab.nb = secHead.t[index][5] / 16;
+			symTab.nb = secHead.t[index].sh_size / 16;
 
-			fseek(f, secHead.t[index][4],SEEK_SET);
+			fseek(f, secHead.t[index].sh_offset,SEEK_SET);
 
 			for(int i=0 ; i < symTab.nb ; i++){
-				symTab.t[i][0] = read_word(f);
-				symTab.t[i][1] = read_word(f);
-				symTab.t[i][2] = read_word(f);
-				symTab.t[i][3] = read_quarter_word(f);
-				symTab.t[i][4] = read_quarter_word(f);
-				symTab.t[i][5] = read_half_word(f);
+				symTab.t[i].st_name = read_word(f);
+				symTab.t[i].st_value = read_word(f);
+				symTab.t[i].st_size = read_word(f);
+				symTab.t[i].st_info = read_quarter_word(f);
+				symTab.t[i].st_other = read_quarter_word(f);
+				symTab.t[i].st_shndx = read_half_word(f);
 			}
 		}
 	}
@@ -220,15 +220,15 @@ SymTab read_table_symboles(FILE * f, SecHead secHead, SymTab symTab)
 
 void print_table_symboles(SymTab symTab){
 	printf("La table de symboles contient %d entrées :\n", symTab.nb);
-	printf("[Nr]\tName\tValue\tSize\tInfo\tOther\tshndx\n");
+	printf("[Nr]\tName     Value    Size     Info     Other    shndx\n");
 	for(int i=0 ; i < symTab.nb ; i++){
 		printf("[%d]\t", i);
-		printf("%x\t", symTab.t[i][0]);
-		printf("%x\t", symTab.t[i][1]);
-		printf("%x\t", symTab.t[i][2]);
-		printf("%x\t", symTab.t[i][3]);
-		printf("%x\t", symTab.t[i][4]);
-		printf("%x\n", symTab.t[i][5]);
+		printf("%08x ", symTab.t[i].st_name);
+		printf("%08x ", symTab.t[i].st_value);
+		printf("%08x ", symTab.t[i].st_size);
+		printf("%08x ", symTab.t[i].st_info);
+		printf("%08x ", symTab.t[i].st_other);
+		printf("%08x\n", symTab.t[i].st_shndx);
 	}
 	printf("\n\n");
 }
@@ -237,21 +237,28 @@ void read_table_reimplantation(FILE * f, SecHead secHead, SymTab symTab)
 {
 	for (int i = 0; i < secHead.nb; i++) {
 		// Chek type = SHT_REL ou RELA
-		if(secHead.t[i][1] == SHT_REL || secHead.t[i][1] == SHT_RELA){
-			printf("Section de réadressage '.rel.text' à l'adresse de décalage 0x%x contient %d entrées :\n", secHead.t[i][4], secHead.t[i][5] / 8);
-			printf("Décal\tInfo\tType\tVal.-sym\tNoms-symboles\n");
+		if(secHead.t[i].sh_type == SHT_REL || secHead.t[i].sh_type == SHT_RELA){
+			printf("Section de réadressage '.rel.text' à l'adresse de décalage 0x%x contient %d entrées :\n", secHead.t[i].sh_offset, secHead.t[i].sh_size / 8);
+			printf("Offset   Info     Type     Val.-sym Noms-symboles\n");
 
-			fseek(f, secHead.t[i][4] ,SEEK_SET); //Offset
-			for(int j=0 ; j < secHead.t[i][5] / 8 ; j++){ // Size
-				printf("%x\t", read_word(f));
+			fseek(f, secHead.t[i].sh_offset ,SEEK_SET); //Offset
+			for(int j=0 ; j < secHead.t[i].sh_size / 8 ; j++){ // Size
+				printf("%08x ", read_word(f));
 				int info = read_word(f);
-				printf("%x\t", info);
-				printf("%x\t", info & 0xFF); // type
+				printf("%08x ", info);
+				printf("%08x ", ELF32_R_TYPE(info)); // type
 
-				printf("%x\t\t", symTab.t[info >> 8][1]); // symbol value
-				printf("%x\n", symTab.t[info >> 8][0]); // symbol name
+				printf("%08x ", symTab.t[ELF32_R_SYM(info)].st_value);
+				printf("%08x\n", ELF32_R_INFO(ELF32_R_SYM(info),symTab.t[ELF32_R_SYM(info)].st_name));
 			}
 			printf("\n\n");
 		}
 	}
+}
+
+void print_string_table(Elf32_Ehdr head, SecHead secHead)
+{
+	int index=head.e_shstrndx & 0xff;
+	printf("%x\t",secHead.t[index].sh_name);
+	printf("%x\n",index);
 }
