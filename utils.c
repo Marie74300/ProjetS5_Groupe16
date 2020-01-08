@@ -107,120 +107,130 @@ void print_header(Elf_Header h)
 	printf("\nELF Header:\n");
 	
 	if (h.architecture == 1){
-		printf("  Magic: ");
+		printf("  Magic:   ");
 		for(int i=0 ; i<16 ; i++)
-			printf("%x ", h.h32.e_ident[i]);
+			printf("%02x ", h.h32.e_ident[i]);
 		printf("\n");
 
-		printf("  Class: ");
-		printf("%hd\n", h.h32.e_ident[EI_CLASS]);
+		printf("  Class:                             ");
+		printf("%hd ", h.h32.e_ident[EI_DATA]);
+		if(h.h32.e_ident[EI_CLASS]==0){printf("ELFCLASSNONE\n");}else if(h.h32.e_ident[EI_CLASS]==1){printf("ELFCLASS32\n");}else if(h.h32.e_ident[EI_CLASS]==2){printf("ELFCLASS64\n");}else{printf("\n");}
 
-		printf("  Data: ");
-		printf("%hd\n", h.h32.e_ident[EI_DATA]);
+		printf("  Data:                              ");
+		printf("%hd ", h.h32.e_ident[EI_DATA]);
+		if(h.h32.e_ident[EI_DATA]==0){printf("ELFDATANONE\n");}else if(h.h32.e_ident[EI_DATA]==1){printf("ELFDATA2LSB\n");}else if(h.h32.e_ident[EI_DATA]==2){printf("ELFDATA2MSB\n");}else{printf("\n");}
 
-		printf("  Version: ");
-		printf("%hd\n", h.h32.e_ident[EI_VERSION]);
+		printf("  Version:                           ");
+		printf("%hd ", h.h32.e_ident[EI_VERSION]);
+		if(h.h32.e_ident[EI_VERSION]==0){printf("EV_NONE\n");}else if(h.h32.e_ident[EI_VERSION]==1){printf("EV_CURRENT\n");}else{printf("\n");}
 
-		printf("  OS/ABI: ");
+		printf("  OS/ABI:                            ");
 		printf("%hd\n", h.h32.e_ident[EI_OSABI]);
 
-		printf("  ABI Version: ");
+		printf("  ABI Version:                       ");
 		printf("%hd\n", h.h32.e_ident[EI_ABIVERSION]);
 
-		printf("  Type: ");
-		printf("%hd\n", h.h32.e_type);
+		printf("  Type:                              ");
+		printf("%hd ", h.h32.e_type);
+		if(h.h32.e_type==0){printf("ET_NONE\n");}else if(h.h32.e_type==1){printf("ET_REL\n");}else if(h.h32.e_type==2){printf("ET_EXEC\n");}else if(h.h32.e_type==3){printf("ET_DYN\n");}else if(h.h32.e_type==4){printf("ET_CORE\n");}else if(h.h32.e_type==0xff00){printf("ET_LOPROC\n");}else if(h.h32.e_type==0xffff){printf("ET_HIPROC\n");}else{printf("\n");}
 
-		printf("  Machine: ");
-		printf("%hd\n", h.h32.e_machine);
+		printf("  Machine:                           ");
+		printf("%hd ", h.h32.e_machine);
+		if(h.h32.e_machine==40){printf("ARM\n");}else{printf("\n");}
 
-		printf("  Version: ");
-		printf("%hd\n", h.h32.e_version);
+		printf("  Version:                           ");
+		printf("0x%x\n", h.h32.e_version);
 
-		printf("  Entry point address: ");
-		printf("%hd\n", h.h32.e_entry);
+		printf("  Entry point address:               ");
+		printf("0x%x\n", h.h32.e_entry);
 
-		printf("  Start of program headers: ");
-		printf("%hd\n", h.h32.e_phoff);
+		printf("  Start of program headers:          ");
+		printf("%hd (bytes into file)\n", h.h32.e_phoff);
 
-		printf("  Start of section headers: ");
-		printf("%hd\n", h.h32.e_shoff);
+		printf("  Start of section headers:          ");
+		printf("%hd (bytes into file)\n", h.h32.e_shoff);
 
-		printf("  Flags: ");
+		printf("  Flags:                             ");
 		printf("%hd\n", h.h32.e_flags);
 
-		printf("  Size of this header: ");
-		printf("%hd\n", h.h32.e_ehsize);
+		printf("  Size of this header:               ");
+		printf("%hd (bytes)\n", h.h32.e_ehsize);
 
-		printf("  Size of program headers: ");
-		printf("%hd\n", h.h32.e_phentsize);
+		printf("  Size of program headers:           ");
+		printf("%hd (bytes)\n", h.h32.e_phentsize);
 
-		printf("  Number of program headers: ");
+		printf("  Number of program headers:         ");
 		printf("%hd\n", h.h32.e_phnum);
 
-		printf("  Size of section headers: ");
-		printf("%hd\n", h.h32.e_shentsize);
+		printf("  Size of section headers:           ");
+		printf("%hd (bytes)\n", h.h32.e_shentsize);
 
-		printf("  Number of section headers: ");
+		printf("  Number of section headers:         ");
 		printf("%hd\n", h.h32.e_shnum);
 
 		printf("  Section header string table index: ");
 		printf("%hd\n\n", h.h32.e_shstrndx);
 	}
 	else {
-		printf("  Magic: ");
+		printf("  Magic:   ");
 		for(int i=0 ; i<16 ; i++)
-			printf("%x ", h.h64.e_ident[i]);
+			printf("%02x ", h.h64.e_ident[i]);
 		printf("\n");
 
-		printf("  Class: ");
-		printf("%hd\n", h.h64.e_ident[EI_CLASS]);
+				printf("  Class:                             ");
+		printf("%hd ", h.h64.e_ident[EI_DATA]);
+		if(h.h64.e_ident[EI_CLASS]==0){printf("ELFCLASSNONE\n");}else if(h.h64.e_ident[EI_CLASS]==1){printf("ELFCLASS32\n");}else if(h.h64.e_ident[EI_CLASS]==2){printf("ELFCLASS64\n");}else{printf("\n");}
 
-		printf("  Data: ");
-		printf("%hd\n", h.h64.e_ident[EI_DATA]);
+		printf("  Data:                              ");
+		printf("%hd ", h.h64.e_ident[EI_DATA]);
+		if(h.h64.e_ident[EI_DATA]==0){printf("ELFDATANONE\n");}else if(h.h64.e_ident[EI_DATA]==1){printf("ELFDATA2LSB\n");}else if(h.h64.e_ident[EI_DATA]==2){printf("ELFDATA2MSB\n");}else{printf("\n");}
 
-		printf("  Version: ");
-		printf("%hd\n", h.h64.e_ident[EI_VERSION]);
+		printf("  Version:                           ");
+		printf("%hd ", h.h32.e_ident[EI_VERSION]);
+		if(h.h64.e_ident[EI_VERSION]==0){printf("EV_NONE\n");}else if(h.h64.e_ident[EI_VERSION]==1){printf("EV_CURRENT\n");}else{printf("\n");}
 
-		printf("  OS/ABI: ");
+		printf("  OS/ABI:                            ");
 		printf("%hd\n", h.h64.e_ident[EI_OSABI]);
 
-		printf("  ABI Version: ");
+		printf("  ABI Version:                       ");
 		printf("%hd\n", h.h64.e_ident[EI_ABIVERSION]);
 
-		printf("  Type: ");
-		printf("%hd\n", h.h64.e_type);
+		printf("  Type:                              ");
+		printf("%hd ", h.h64.e_type);
+		if(h.h64.e_type==0){printf("ET_NONE\n");}else if(h.h64.e_type==1){printf("ET_REL\n");}else if(h.h64.e_type==2){printf("ET_EXEC\n");}else if(h.h64.e_type==3){printf("ET_DYN\n");}else if(h.h64.e_type==4){printf("ET_CORE\n");}else if(h.h64.e_type==0xff00){printf("ET_LOPROC\n");}else if(h.h64.e_type==0xffff){printf("ET_HIPROC\n");}else{printf("\n");}
 
-		printf("  Machine: ");
-		printf("%hd\n", h.h64.e_machine);
+		printf("  Machine:                           ");
+		printf("%hd ", h.h64.e_machine);
+		if(h.h64.e_machine==40){printf("ARM\n");}else{printf("\n");}
 
-		printf("  Version: ");
-		printf("%hd\n", h.h64.e_version);
+		printf("  Version:                           ");
+		printf("0x%x\n", h.h64.e_version);
 
-		printf("  Entry point address: ");
-		printf("%ld\n", h.h64.e_entry);
+		printf("  Entry point address:               ");
+		printf("0x%lx\n", h.h64.e_entry);
 
-		printf("  Start of program headers: ");
-		printf("%ld\n", h.h64.e_phoff);
+		printf("  Start of program headers:          ");
+		printf("%ld (bytes into file)\n", h.h64.e_phoff);
 
-		printf("  Start of section headers: ");
-		printf("%ld\n", h.h64.e_shoff);
+		printf("  Start of section headers:          ");
+		printf("%ld (bytes into file)\n", h.h64.e_shoff);
 
-		printf("  Flags: ");
+		printf("  Flags:                             ");
 		printf("%hd\n", h.h64.e_flags);
 
-		printf("  Size of this header: ");
-		printf("%hd\n", h.h64.e_ehsize);
+		printf("  Size of this header:               ");
+		printf("%hd (bytes)\n", h.h64.e_ehsize);
 
-		printf("  Size of program headers: ");
-		printf("%hd\n", h.h64.e_phentsize);
+		printf("  Size of program headers:           ");
+		printf("%hd (bytes)\n", h.h64.e_phentsize);
 
-		printf("  Number of program headers: ");
+		printf("  Number of program headers:         ");
 		printf("%hd\n", h.h64.e_phnum);
 
-		printf("  Size of section headers: ");
-		printf("%hd\n", h.h64.e_shentsize);
+		printf("  Size of section headers:           ");
+		printf("%hd (bytes)\n", h.h64.e_shentsize);
 
-		printf("  Number of section headers: ");
+		printf("  Number of section headers:         ");
 		printf("%hd\n", h.h64.e_shnum);
 
 		printf("  Section header string table index: ");
@@ -268,7 +278,7 @@ SecHead read_section_headers(FILE * f, Elf_Header h)
 void print_section_headers(SecHead s, StringTab string)
 {
 	printf("Section Headers:\n");
-	printf("[Nr]\tName\t\tType\tFlags\tAddr\tOffset\tSize\tLink\tInfo\tAddralign\tEntsize\n");
+	printf("[Nr]\tName\t\tType\t\tAddr\tOff\tSize\tES\tFlg\tLk\tInf\tAl\n");
 
 	OneHeader *c = s.tete;
 
@@ -277,16 +287,17 @@ void print_section_headers(SecHead s, StringTab string)
 		printf("[%d]\t", i);
 
 		//printf("%x\t", c->t.sh_name);
-		printf("%s\t\t", string_pos(string, c->t.sh_name));
-		printf("%x\t", c->t.sh_type);
-		printf("%x\t", c->t.sh_flags);
+		//Ici l'affichage est adapté uniquement pour nos 2 exemples (es.o accessmem.o)
+		if(i==2 || i==5 || i==6){printf("%s\t", string_pos(string, c->t.sh_name));}else {printf("%s\t\t", string_pos(string, c->t.sh_name));}
+		if(c->t.sh_type==0){printf("SHT_NULL\t");}else if(c->t.sh_type==1){printf("SHT_PROGBITS\t");}else if(c->t.sh_type==2){printf("SHT_SYMTAB\t");}else if(c->t.sh_type==3){printf("SHT_STRTAB\t");}else if(c->t.sh_type==4){printf("SHT_RELA\t\t");}else if(c->t.sh_type==5){printf("SHT_HASH\t");}else if(c->t.sh_type==6){printf("SHT_DYNAMIC\t");}else if(c->t.sh_type==7){printf("SHT_NOTE\t");}else if(c->t.sh_type==8){printf("SHT_NOBITS\t");}else if(c->t.sh_type==9){printf("SHT_REL\t\t");}else if(c->t.sh_type==10){printf("SHT_SHLIB\t");}else if(c->t.sh_type==11){printf("SHT_DYNSYM\t");}else if(c->t.sh_type==0x70000000){printf("SHT_LOPROC\t");}else if(c->t.sh_type==0x7fffffff){printf("SHT_HIPROC\t");}else if(c->t.sh_type==0x80000000){printf("SHT_LOUSER\t");}else if(c->t.sh_type==0xffffffff){printf("SHT_HIUSER\t");}else{if(i==5){printf("%x\t", c->t.sh_type);}else{printf("%x\t\t", c->t.sh_type);}}
 		printf("%x\t", c->t.sh_addr);
 		printf("%x\t", c->t.sh_offset);
 		printf("%x\t", c->t.sh_size);
+		printf("%x\t", c->t.sh_entsize);
+		printf("%x\t", c->t.sh_flags);
 		printf("%x\t", c->t.sh_link);
 		printf("%x\t", c->t.sh_info);
-		printf("%x\t\t", c->t.sh_addralign);
-		printf("%x\n", c->t.sh_entsize);
+		printf("%x\n", c->t.sh_addralign);
 
 		c = c->suivant;
 	}
@@ -306,7 +317,7 @@ void print_section(FILE * f, SecHead s, int i)
 	fseek(f, c->t.sh_offset ,SEEK_SET);
 
 	for(int j=0 ; j < c->t.sh_size / 2; j++)
-		printf("%08x ", read_quarter_word(f));
+		printf("%02x ", read_quarter_word(f));
 	printf("\n\n");
 }
 
@@ -373,9 +384,9 @@ void print_table_symboles(SymTab st)
 		printf("%08x ", current->t.st_name);
 		printf("%08x ", current->t.st_value);
 		printf("%08x ", current->t.st_size);
-		printf("%08x ", current->t.st_info);
-		printf("%08x ", current->t.st_other);
-		printf("%08x\n", current->t.st_shndx);
+		printf("%02x       ", current->t.st_info);
+		printf("%02x       ", current->t.st_other);
+		printf("%04x\n", current->t.st_shndx);
 
 		current = current->suivant;
 	}
