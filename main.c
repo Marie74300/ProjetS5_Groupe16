@@ -20,7 +20,14 @@ int main(int argc, char ** argv)
 
 	// READING OF SECTION HEADERS
 	SecHead secHead = read_section_headers(fich_o, head);
-	print_section_headers(secHead);
+
+		// READING OF STRING TABLE
+		StringTab string = read_string_table(fich_o, head, secHead);
+		print_string_tab(string);
+
+	print_section_headers(secHead, string);
+
+	
 
 	//AFFICHER SECTION
 	print_section(fich_o, secHead, 3);
@@ -32,8 +39,7 @@ int main(int argc, char ** argv)
 	//AFFICHER Table de réimplantation
 	read_table_reimplantation(fich_o, secHead, symTab);
 
-	// Read string TABLE TODO
-	print_string_table(fich_o, head, secHead);
+	
 
 
 

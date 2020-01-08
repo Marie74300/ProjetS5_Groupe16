@@ -265,10 +265,10 @@ SecHead read_section_headers(FILE * f, Elf_Header h)
 	return s;
 }
 
-void print_section_headers(SecHead s)
+void print_section_headers(SecHead s, StringTab string)
 {
 	printf("Section Headers:\n");
-	printf("[Nr]\tName\tType\tFlags\tAddr\tOffset\tSize\tLink\tInfo\tAddralign\tEntsize\n");
+	printf("[Nr]\tName\t\tType\tFlags\tAddr\tOffset\tSize\tLink\tInfo\tAddralign\tEntsize\n");
 
 	OneHeader *c = s.tete;
 
@@ -276,7 +276,8 @@ void print_section_headers(SecHead s)
 	{
 		printf("[%d]\t", i);
 
-		printf("%x\t", c->t.sh_name);
+		//printf("%x\t", c->t.sh_name);
+		printf("%s\t\t", string_pos(string, c->t.sh_name));
 		printf("%x\t", c->t.sh_type);
 		printf("%x\t", c->t.sh_flags);
 		printf("%x\t", c->t.sh_addr);
@@ -419,30 +420,85 @@ void read_table_reimplantation(FILE * f, SecHead s, SymTab st)
 	}
 }
 
-void print_string_table(FILE * f, Elf_Header head, SecHead s)
+StringTab read_string_table(FILE * f, Elf_Header head, SecHead s)
 {
-	printf("Affichage de la table des string : \n");
-
-	/*int e_shstrndx = (head.architecture == 1) ? head.h32.e_shstrndx : head.h64.e_shstrndx;
-	int index = e_shstrndx & 0xff;
-
 	OneHeader *c = s.tete;
-	for(int i=0 ; i<index ; i++)
-		c = c->suivant;
-
-	printf("%x\t",c->t.sh_name);
-	printf("%x\n",index);*/
-	
-	OneHeader *c = s.tete;
-	for(int i=0 ; i<6 ; i++)
+	while(c->t.sh_type != SHT_STRTAB)
 		c = c->suivant;
 
 	fseek(f, c->t.sh_offset ,SEEK_SET);
 
+	StringTab string;
+	string.nb = 0;
+
+	OneString *current;
+	OneString *precedent;
+
+	char cc;
+	int lg = 0;
+	int compt = 0;
+
+	current = malloc (sizeof(OneString));
+	current->pos = 1;
+	string.tete = current;
+
 	for(int i=0 ; i<c->t.sh_size ; i++)
-		printf("%c", read_quarter_word(f));
-	printf("\n");
+	{
+		cc = read_quarter_word(f);
+		
+
+		if (cc != '\0')
+		{
+			current->t[lg] = cc;
+			lg ++;
+		}
+		else if (compt != 0)
+		{
+			current->t[lg] = '\0';
+	
+			lg = 0;
+			string.nb ++;
+
+			precedent = current;
+			current = malloc (sizeof(OneString));
+			precedent->suivant = current;
+
+			current->pos = compt + 1;
+		}
+		compt++;
+	}
+	return string;
 }
+
+void print_string_tab(StringTab string)
+{
+	printf("La table des chaines de caracteres contient %d entrées :\n", string.nb);
+
+	OneString *current = string.tete;
+
+	for(int i=0 ; i < string.nb ; i++)
+	{
+		printf("[%d] : ", i);
+		printf("%s - ", current->t);
+		printf("%x\n", current->pos);
+
+		current = current->suivant;
+	}
+	printf("\n\n");
+}
+
+char * string_pos(StringTab string, int pos)
+{
+	OneString *current = string.tete;
+	
+	while (current != NULL && pos != current->pos)
+		current = current->suivant;
+
+	if(current == NULL) return "";
+	return current->t;
+}
+
+
 
 void end(SecHead s, SymTab st)
 {
