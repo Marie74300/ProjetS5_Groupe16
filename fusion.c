@@ -432,7 +432,7 @@ int comp_string(char * a, char * b)
 		if (a[x] != b[x]) return 0;
 		x++;
 	}
-	if (a[x] != b[x]) return 0;
+/*	if (a[x] != b[x]) return 0;*/
 	return 1;
 }
 
@@ -449,7 +449,7 @@ void fusion_table_reimplementation(OFile a, OFile b, OFile dest)
 	{
 		printf("\tTABLE %s\n", reimpA->name);
 
-		while(/*comp_string(reimpA->name, reimpB->name) && */reimpB != NULL)
+		while(comp_string(reimpA->name, reimpB->name) && reimpB != NULL)
 			reimpB = reimpB->suivant;
 
 		if (reimpB != NULL)
