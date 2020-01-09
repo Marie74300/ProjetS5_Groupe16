@@ -1,35 +1,36 @@
-all: p1 p2
+all: partie1 partie2
 CC=gcc
 CFLAGS=-Wall -Werror
 
 
 
-main1.o: main1.c utils.h
+main1.o: main1.c read_func.h
 	$(CC) $(CFLAGS) -c main1.c
 
-main2.o: main2.c utils.h fusion.h
+main2.o: main2.c read_func.h fusion.h
 	$(CC) $(CFLAGS) -c main2.c
 
+read_func.o: read_func.c read_func.h read.h print.h
+	$(CC) $(CFLAGS) -c read_func.c
 
-
-utils.o: utils.c utils.h es.h
-	$(CC) $(CFLAGS) -c utils.c
-
-fusion.o: fusion.c fusion.h utils.h es.h
+print.o: print.c print.h read_func.h read.h
+	$(CC) $(CFLAGS) -c print.c
+	
+fusion.o: fusion.c fusion.h read_func.h read.h
 	$(CC) $(CFLAGS) -c fusion.c
 
-es.o: es.c es.h 
-	$(CC) $(CFLAGS) -c es.c
+read.o: read.c read.h 
+	$(CC) $(CFLAGS) -c read.c
 
 
 
-p1: main1.o utils.o es.o
-	$(CC) $(CFLAGS) -o p1 main1.o utils.o es.o
+partie1: main1.o read_func.o read.o print.o
+	$(CC) $(CFLAGS) -o partie1 main1.o read_func.o read.o print.o
 
-p2: main2.o utils.o fusion.o es.o
-	$(CC) $(CFLAGS) -o p2 main2.o utils.o fusion.o es.o
+partie2: main2.o read_func.o fusion.o read.o print.o
+	$(CC) $(CFLAGS) -o partie2 main2.o read_func.o fusion.o read.o print.o
 
 
 
 clean:
-	rm *.o p1 p2
+	rm *.o partie1 partie2

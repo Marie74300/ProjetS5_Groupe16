@@ -4,8 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <elf.h>
-#include "utils.h"
-#include "es.h"
+
+#include "read_func.h"
+#include "read.h"
+#include "print.h"
 
 /*
    fusion
@@ -60,4 +62,10 @@ void fusion_table_symbole(OFile a,OFile b,OFile dest);
    effets de bord : modifie la table de symbole de destination
 */
 int comparaison(SymTab ts1,OneSymbol *current, OneSymbol *previous, OneSymbol *endDestSymTab, int architecture);
+
+/*
+*/
+void fusion_table_reimplementation(OFile a,OFile b,OFile dest);
 #endif
+
+

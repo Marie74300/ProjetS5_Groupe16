@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <elf.h>
 
-#include "utils.h"
+#include "read_func.h"
 #include "fusion.h"
-#include "es.h"
 
 int main(int argc, char ** argv)
 {
@@ -28,6 +27,7 @@ int main(int argc, char ** argv)
 		return 4;
 	}
 
+	printf("\n\nFusion des fichiers %s et %s .\n", argv[1], argv[2]);
 
 	OFile a = initOFile(fich_o1);
 	OFile b = initOFile(fich_o2);
@@ -39,6 +39,8 @@ int main(int argc, char ** argv)
 	
 	// FUSION
 	fusion (a, b, dest);
+
+	printf("\n\nResultat dans le fichier %s .\n\n", argv[3]);
 	
 	
 
