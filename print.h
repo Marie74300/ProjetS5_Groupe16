@@ -3,8 +3,6 @@
 
 
 
-
-void print_header(Elf_Header head);
 /****************************************************************************************************************************************
 print_header
 Description: Affichages des données de Elf_Header (rempli par la fonction read_header) 
@@ -15,8 +13,8 @@ effet de bord: Affichage complet du header
 
 ****************************************************************************************************************************************/
 
+void print_header(Elf_Header head);
 
-void print_section_headers(SecHead section, StringTab string);
 /****************************************************************************************************************************************
 print_section_header
 Description: Affichages des section de SecHead (rempli par la fonction read_section_headers) 
@@ -26,9 +24,9 @@ effet de bord: Affichage des informations des sections
 -Nr	-name		-...
 
 ****************************************************************************************************************************************/
+void print_section_headers(SecHead section, StringTab string);
 
 
-void print_string(StringTab string, int pos);
 /****************************************************************************************************************************************
 print_string
 Description: Affichages caractere
@@ -37,10 +35,10 @@ valeur de retour: aucune
 effet de bord: Afiichage des caracteres celon la position et la partie que l'on nous demande 
 
 ****************************************************************************************************************************************/
+void print_string(StringTab string, int pos);
 
 
 
-void print_table_symboles(SymTab st, StringTab string);
 /****************************************************************************************************************************************
 print_table_symbole
 Description: Affichages des symboles SymTab st (rempli par la fonction read_symbole_table) 
@@ -50,9 +48,9 @@ effet de bord: Affichage complet des symboles
 -Nr	-Value		-size 		-...
 
 ****************************************************************************************************************************************/
+void print_table_symboles(SymTab st, StringTab string);
 
 
-void print_section(FILE * f, SecHead s, int i);
 /****************************************************************************************************************************************
 print_section
 Description: affiche le contenue des section
@@ -61,10 +59,10 @@ valeur de retour: aucune
 effet de bord: affiche le contenu de la section en hexa
 
 ****************************************************************************************************************************************/
+void print_section(FILE * f, SecHead s, int i);
 
 
 
-void print_table_reimp(ReimpTab r, StringTab string2, StringTab string1);
 /****************************************************************************************************************************************
 print_table_reimp
 Description: affiche chaque element de r 
@@ -74,10 +72,10 @@ effet de bord: Affichage complet des information de replementation
 -nb	-offset		-...
 
 ****************************************************************************************************************************************/
+void print_table_reimp(ReimpTab r, StringTab string2, StringTab string1);
 
 
 
-void print_table_reimp_new(ListReimpTab LR, StringTab string2, StringTab string1);
 /****************************************************************************************************************************************
 print_table_reimp_new
 Description: appel print_table_reimp pour afficher tableau de chaque element de LR
@@ -86,6 +84,8 @@ valeur de retour: aucune
 effet de bord: appel une fonction pour affichage
 
 ****************************************************************************************************************************************/
+void print_table_reimp_new(ListReimpTab LR, StringTab string2, StringTab string1);
+
 
 
 #endif
