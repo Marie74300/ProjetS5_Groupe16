@@ -327,8 +327,7 @@ void print_section(FILE * f, SecHead s, int i)
 	for(int j=0 ; j < c->t32.sh_size ; j++)
 	{
 		printf("%02x ", read_unsigned_char(f));
-		if ((j+1)%4 == 0) printf("\t");
-		if ((j+1)%8 == 0) printf("\n");
+		if ((j+1)%4 == 0) printf("\n");
 	}
 	printf("\n\n");
 }
@@ -583,7 +582,6 @@ ListReimpTab read_table_reimplantation_new(FILE * f, SecHead s, SymTab st, Elf_H
 
 	return LR;
 }
-
 void print_table_reimp_new(ListReimpTab LR, StringTab string2, StringTab string1)
 {
 	OneList *c = LR.tete;
@@ -639,6 +637,23 @@ StringTab read_string_table(FILE * f, Elf_Header head, SecHead s, int nb)
 	return string;
 }
 
+/*void print_string_tab(StringTab string)
+{
+	printf("La table des chaines de caracteres contient %d entrées :\n", string.nb);
+
+	OneString *current = string.tete;
+
+	for(int i=0 ; i < string.nb ; i++)
+	{
+		printf("[%d] : ", i);
+		printf("%s - ", current->t);
+		printf("%x\n", current->pos);
+
+		current = current->suivant;
+	}
+	printf("\n\n");
+}*/
+
 void  print_string(StringTab string, int pos)
 {
 	OneString *current = string.tete;
@@ -654,6 +669,12 @@ void  print_string(StringTab string, int pos)
 		}
 	}
 	printf("\t");
+
+	/*while (current != NULL && pos != current->pos)
+		current = current->suivant;
+
+	if(current == NULL) return "";
+	return current->t;*/
 }
 
 
@@ -739,4 +760,3 @@ void end(OFile a)
 		free(p5);
 	}
 }
-

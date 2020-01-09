@@ -10,59 +10,126 @@ void fusion(OFile a, OFile b, OFile dest)
 	dest.s = a.s;
 
 	// HEADER
-	printf("\nStep 1 : Write header\n\n");
+	printf("write header\n");
 	write_header(dest);
 	
 
 	// SECTIONS
-	printf("Step 2 : Write sections\n");
+	printf("write sections\n");
+	// Nombre de sections
+	int nbSection = dest.h.architecture == 1 ? dest.h.h32.e_shnum : dest.h.h64.e_shnum;
 
-	int nbSection = (dest.h.architecture == 1) ? dest.h.h32.e_shnum : dest.h.h64.e_shnum;
+	//int compt = 0;
+	//int pcur = dest.h.architecture ? dest.h.h32.e_shnum : dest.h.h64.e_shnum;
+	//int min = 100000, pmin = 0;
+	//int name, c2_compt;
+
+	// int tab[nbSection];
+	// for(int i=0 ; i<nbSection ; i++)
+	// 	tab[i] = 0;
+
+	// Indice des sections
+	//int e_shnum2 = b.h.architecture ? b.h.h32.e_shnum : b.h.h64.e_shnum;
+	//int tab2[e_shnum2];
+	// for(int i=0 ; i<e_shnum2 ; i++)
+	// 	tab2[i] = 0;
+
+
 	int currentOffset = dest.h.h32.e_ehsize;
 
 	OneHeader *currentSecHead = dest.s.tete;
-	OneHeader *headerOfB = b.s.tete;
-
-	int offset_temporaire;
+	//OneHeader *c2 = b.s.tete;
 
 	// On parcourt toutes les sections Headers
-	for (int i = 0; i < nbSection; i++) 
-	{
-		printf("\ts%d/%d\n", i + 1, nbSection);
+	for (int i = 0; i < nbSection; i++) {
+		if(currentSecHead->t32.sh_offset != 0){
+			//Maj secHead
+			currentSecHead->t32.sh_offset = currentOffset;
+			currentOffset += currentSecHead->t32.sh_size;
+		}
 
-		offset_temporaire = currentOffset;
-		currentOffset += currentSecHead->t32.sh_size;
-		
+		printf("section %d/%d\n", i + 1, nbSection);
 		write_section(a, dest, currentSecHead);
-
-		// SEARCH FOR SAME SECTION IN FILE B
-		while(headerOfB->t32.sh_name != currentSecHead->t32.sh_name && headerOfB->suivant != NULL)
-		{
-			headerOfB = headerOfB->suivant;
-		}
-
-		if (headerOfB->t32.sh_name == currentSecHead->t32.sh_name)
-		{
-			write_section(b, dest, headerOfB);
-			currentOffset += headerOfB->t32.sh_size;
-			currentSecHead->t32.sh_size += headerOfB->t32.sh_size;
-		}
-		headerOfB = b.s.tete;
-
-		// END SEARCH
-
-		currentSecHead->t32.sh_offset = offset_temporaire;
-
 		currentSecHead = currentSecHead->suivant;
 	}
 
+	
+
+	// while (compt != nbSection)
+	// {
+	// 	for(int i=0 ; i < nbSection ; i++){
+	// 		if (c->t32.sh_offset < min && tab[i] == 0)
+	// 		{
+	// 			min = c->t32.sh_offset;
+	// 			pmin = i;
+	// 			name = c->t32.sh_name;
+	// 		}
+	// 		c = c->suivant;
+	// 	}
+	// 	while (min > pcur)
+	// 	{
+	// 		write_quarter_word(0, dest.f);
+	// 		pcur++;
+	// 	}
+	// 	write_section(a, dest, pmin);
+	//
+	// 	// CHERCHER SECTION DANS 2EME FICHIER .O
+	//
+	// 	c2 = b.s.tete;
+	// 	c2_compt = 0;
+	// 	while (c2->t32.sh_name != name && c2->suivant != NULL)
+	// 	{
+	// 		c2 = c2->suivant;
+	// 		c2_compt++;
+	// 	}
+	//
+	// 	if (c2->t32.sh_name == name)
+	// 	{
+	// 		write_section(b, dest, c2_compt);
+	// 		//tab2[c2_compt] = 1;
+	// 	}
+	//
+	// 	// FIN RECHERCHE
+	//
+	// 	compt++;
+	// 	tab[pmin] = 1;
+	// 	min = 100000;
+	// 	pmin = 0;
+	// 	c = a.s.tete;
+	// }
+
+
+
+	// ECRITURE DES SECTIONS UNIQUES DANS B
+	// c2 = b.s.tete;
+	// c = dest.s.tete;
+	//
+	//
+	// OneHeader *suiv = malloc (sizeof(OneHeader));
+	// suiv->suivant = NULL;
+	//
+	// while (c->suivant != NULL)
+	// 	c = c->suivant;
+	//
+	// for(int i=0 ; i<e_shnum2 ; i++)
+	// {
+	// 	if (tab2[i] == 0)
+	// 	{
+	// 		write_section(b, dest, i);
+	// 	}
+	//
+	// 	c2 = c2->suivant;
+	// }
+
+
+
 	// ECRITURE SECTION HEADER
-	printf("\nStep 3 : Write section header table\n\n");
+	printf("write section header table\n");
 	write_section_header(dest);
 
 
+
 	//Maj HEADER
-	printf("Step 4 : MAJ\n\n");
 	dest.h.h32.e_shoff = currentOffset;
 
  	int offset = dest.h.architecture == 1 ? 0x20 : 0x28;
@@ -77,7 +144,7 @@ void fusion(OFile a, OFile b, OFile dest)
 		write_double_word(dest.h.h32.e_shoff, dest.f, dest.h.endianess);
 	}
 
-	printf("Fusion FINISHED\n\n");
+	printf("Fusion OK\n");
 }
 
 
@@ -163,8 +230,9 @@ void write_section_header(OFile dest)
 void write_section(OFile source, OFile dest, OneHeader *secHeader)
 {
 	char c;
+	// printf("section decal [%x]\n", secHeader->t32.sh_offset);
+	// printf("section size [%x]\n", secHeader->t32.sh_size);
 	fseek(source.f, secHeader->t32.sh_offset ,SEEK_SET);
-
 	for(int j=0 ; j < secHeader->t32.sh_size; j++)
 	{
 		c = read_unsigned_char(source.f);

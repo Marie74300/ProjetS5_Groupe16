@@ -9,6 +9,14 @@
 
 
 void fusion(OFile a, OFile b, OFile dest);
+/*
+On a vu les choses de la manière suivante:
+	- En premier lieu on copie les elements de la structure OFile a dans OFile dest
+	- Dans un deuxieme temps on traite la fusion des sections / renommage
+	- Dans un troiseme temps on traite les rennomages des symboles
+	- Dans un dernier temps on ecrit le contenu de la structure OFile dest dans le fichier dest.l
+*/
+
 
 void write_header(OFile dest);
 void write_section(OFile source, OFile dest, OneHeader *secHeader);
