@@ -103,103 +103,97 @@ typedef struct
 
 
 // PARTIE 1.1
-/****************************************************************************************************************************************
+Elf_Header read_header(FILE * f);
+/*
    read_header
-   description : Stock les donnees du header du fichier f.
-   paramï¿½tres  : Fichier f ouvert prealablement.
+   description : Stock les données du header du fichier f.
+   paramètres  : Fichier f ouvert préalablement.
    valeur de retour : variable head ("contenant toute les informations du header du fichier) avec la structure Elf_Header.
-   effets de bord : Remplissage des partie de Elf_header soit  :-e_type grace a read_Elf32_Half
-   								-e_machine grace a read_Elf32_Half
-   								-e_version grace a read_Elf32_Word
-   								-e_machine grace a read_Elf32_Half
-   								-e_entry grace a read_Elf32_Adrr (ou read_Elf64_Adrr)
-   								-e_phoff grace a read_Elf32_Off (ou read_Elf64_Off) 	
-   								-e_shoff grace a read_Elf32_Off (ou read_Elf64_Off) 
-   								-e_flash grace a read_Elf32_Word (ou read_Elf32_Off)
+   effets de bord : Remplissage des partie de Elf_header soit  :-e_type grâce à read_Elf32_Half
+   								-e_machine grâce à read_Elf32_Half
+   								-e_version grâce à read_Elf32_Word
+   								-e_machine grâce à read_Elf32_Half
+   								-e_entry grâce à read_Elf32_Adrr (ou read_Elf64_Adrr)
+   								-e_phoff grâce à read_Elf32_Off (ou read_Elf64_Off) 	
+   								-e_shoff grâce à read_Elf32_Off (ou read_Elf64_Off) 
+   								-e_flash grâce à read_Elf32_Word (ou read_Elf32_Off)
    								-...
    		
 
-****************************************************************************************************************************************/
-Elf_Header read_header(FILE * f);
-
+*/
 
 // PARTIE 1.2
+SecHead read_section_headers(FILE * f, Elf_Header head);
 /****************************************************************************************************************************************
    read_section_header
-   description :  insetion des sections en ce plaï¿½ant dans la partie conserne du fichier F grace au donnees du header (head) .
-   paramï¿½tres  : Fichier f ouvert prealablement Elf_header head remplis dans ead_header.
+   description :  insetion des sections en ce plaçant dans la partie conserné du fichier F grâce au données du header (head) .
+   paramètres  : Fichier f ouvert préalablement Elf_header head remplis dans ead_header.
    valeur de retour : variable  ("contenant toute les informations du header du fichier) avec la structure Elf_Header.
-   effets de bord : Remplissage des partie de Elf_header soit  :-sh_type grace a read_Elf32_Half
-   								-sh_machine grace a read_Elf32_Half
-   								-sh_version grace a read_Elf32_Word
-   								-sh_machine grace a read_Elf32_Half
-   								-sh_entry grace a read_Elf32_Adrr (ou read_Elf64_Adrr)
-   								-sh_phoff grace a read_Elf32_Off (ou read_Elf64_Off) 	
-   								-sh_shoff grace a read_Elf32_Off (ou read_Elf64_Off) 
-   								-sh_flash grace a read_Elf32_Word (ou read_Elf32_Off)
+   effets de bord : Remplissage des partie de Elf_header soit  :-sh_type grâce à read_Elf32_Half
+   								-sh_machine grâce à read_Elf32_Half
+   								-sh_version grâce à read_Elf32_Word
+   								-sh_machine grâce à read_Elf32_Half
+   								-sh_entry grâce à read_Elf32_Adrr (ou read_Elf64_Adrr)
+   								-sh_phoff grâce à read_Elf32_Off (ou read_Elf64_Off) 	
+   								-sh_shoff grâce à read_Elf32_Off (ou read_Elf64_Off) 
+   								-sh_flash grâce à read_Elf32_Word (ou read_Elf32_Off)
    								-...
    		
 
 ****************************************************************************************************************************************/
-SecHead read_section_headers(FILE * f, Elf_Header head);
-
 
 
 // STRING TAB
+StringTab read_string_table(FILE * f, Elf_Header head, SecHead section, int nb);
 /****************************************************************************************************************************************
    read_string_table
    description :  insetion des string.
-   paramï¿½tres  : Fichier f ouvert prealablement Elf_header head SecHead section int nb (1 ou 2)
+   paramètres  : Fichier f ouvert préalablement Elf_header head SecHead section int nb (1 ou 2)
    valeur de retour : variable  sting table
    effets de bord : Remplissage des Strings 
    		
 
 ****************************************************************************************************************************************/
-StringTab read_string_table(FILE * f, Elf_Header head, SecHead section, int nb);
-
 
 
 // PARTIE 1.4
+SymTab read_table_symboles(FILE * f, SecHead symbole_table, Elf_Header head);
 /****************************************************************************************************************************************
    read_table_symboles
    description :  insetion des symboles celon la header et le fichier
-   parametres  : Fichier f ouvert prï¿½alablement Elf_header head remplis dans read_header.
+   paramètres  : Fichier f ouvert préalablement Elf_header head remplis dans read_header.
    valeur de retour : variable SymTab
    effets de bord : Remplissages des Table symboles dans les variable mis en place pour.
 ****************************************************************************************************************************************/
-SymTab read_table_symboles(FILE * f, SecHead symbole_table, Elf_Header head);
-
 
 
 // PARTIE 1.5
+ReimpTab read_table_reimplantation(FILE * f, SecHead section, SymTab symbole_table, Elf_Header head, int nb);
 /****************************************************************************************************************************************
    read_table_symboles
    description :  insetion des table de reimplantation
-   parametres  : Fichier f ouvert prï¿½alablement Elf_header head remplis dans read_header int nb section.
+   paramètres  : Fichier f ouvert préalablement Elf_header head remplis dans read_header int nb section.
    valeur de retour : ReimpTab
    effets de bord : Remplissages des Table reimplantation dans les variable mis en place pour.
 ****************************************************************************************************************************************/
-ReimpTab read_table_reimplantation(FILE * f, SecHead section, SymTab symbole_table, Elf_Header head, int nb);
 
-
+ListReimpTab read_table_reimplantation_new(FILE * f, SecHead section, SymTab symbole_table, Elf_Header head);
 /****************************************************************************************************************************************
    read_stable_reimplantation_new
    description :  appel read_table_reimplantation pour pouvoir traiter table par table.
-   paramï¿½tres  : Fichier f ouvert prealablement Elf_header head remplis dans ead_header SymTab symbole_table remplis .
+   paramètres  : Fichier f ouvert préalablement Elf_header head remplis dans ead_header SymTab symbole_table remplis .
    valeur de retour : variable ListReimpTab contient une liste de ReimpTab
    effets de bord : Remplissage de la liste de ReimpTab 
    		
 
 ****************************************************************************************************************************************/
-ListReimpTab read_table_reimplantation_new(FILE * f, SecHead section, SymTab symbole_table, Elf_Header head);
-
 
 
 
 
 // UTILS
 OFile initOFile(FILE * fich_o);
-void printOFile(OFile a, int sectionNumber);
+void printOFile(OFile a);
 void end(OFile a);
 void print_section(FILE * f, SecHead secHead, int i);
 
