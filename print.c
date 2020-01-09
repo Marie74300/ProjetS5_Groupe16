@@ -217,12 +217,10 @@ void print_section(FILE * f, SecHead section, int i)
 	printf("\n\n");
 }
 
-void print_table_reimp(OneList * reimp, StringTab string2, StringTab string1)
+void print_table_reimp(ReimpTab r, StringTab string2, StringTab string1)
 {
-	ReimpTab r = reimp->r;	
-
 	//Debut d'affichage
-	printf("Section de réadressage '%s' à l'adresse de décalage 0x%x contient %d entrées :\n", reimp->name, r.offset, r.nb);
+	printf("Section de réadressage '.rel.text' à l'adresse de décalage 0x%x contient %d entrées :\n", r.offset, r.nb);
 	printf("[Nb]\tOffset   Info     Type     Val.-sym Noms-symboles\n");
 
 	OneReimp *current_reimp = r.tete;
@@ -252,7 +250,7 @@ void print_table_reimp_new(ListReimpTab LR, StringTab string2, StringTab string1
 	//tant que l'on a pas parcourus tout les reimplementation 
 	for(int i=0 ; i < LR.nb ; i++)
 	{
-		print_table_reimp (current_List, string2, string1);
+		print_table_reimp (current_List->r, string2, string1);
 		current_List = current_List->suivant;
 	}
 }
