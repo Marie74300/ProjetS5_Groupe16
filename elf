@@ -1,0 +1,223 @@
+Makefile:CFLAGS=-Wall -Werror
+Makefile:	$(CC) $(CFLAGS) -c main1.c
+Makefile:	$(CC) $(CFLAGS) -c main2.c
+Makefile:	$(CC) $(CFLAGS) -c read_func.c
+Makefile:	$(CC) $(CFLAGS) -c print.c
+Makefile:	$(CC) $(CFLAGS) -c fusion.c
+Makefile:	$(CC) $(CFLAGS) -c read.c
+Makefile:	$(CC) $(CFLAGS) -o partie1 main1.o read_func.o read.o print.o
+Makefile:	$(CC) $(CFLAGS) -o partie2 main2.o read_func.o fusion.o read.o print.o
+Binary file Z matches
+fusion.c:			currentOffset += currentSecHead->tableformat.sh_size;
+fusion.c:			while (headerOfB->tableformat.sh_name != currentSecHead->tableformat.sh_name && headerOfB->suivant != NULL)
+fusion.c:				headerOfB = headerOfB->suivant;
+fusion.c:			if (headerOfB->tableformat.sh_name == currentSecHead->tableformat.sh_name 
+fusion.c:				&& currentSecHead->tableformat.sh_type != SHT_SYMTAB && currentSecHead->tableformat.sh_type != SHT_RELA)
+fusion.c:				currentOffset += headerOfB->tableformat.sh_size;
+fusion.c:				currentSecHead->tableformat.sh_size += headerOfB->tableformat.sh_size;
+fusion.c:			currentSecHead->tableformat.sh_offset = offset_temporaire;
+fusion.c:			currentSecHead = currentSecHead->suivant;
+fusion.c:		write_word(currentSecHead->tableformat.sh_name, dest.f, dest.h.endianess);
+fusion.c:		write_word(currentSecHead->tableformat.sh_type, dest.f, dest.h.endianess);
+fusion.c:		write_word(currentSecHead->tableformat.sh_flags, dest.f, dest.h.endianess);
+fusion.c:		write_word(currentSecHead->tableformat.sh_addr, dest.f, dest.h.endianess);
+fusion.c:		write_word(currentSecHead->tableformat.sh_offset, dest.f, dest.h.endianess);
+fusion.c:		write_word(currentSecHead->tableformat.sh_size, dest.f, dest.h.endianess);
+fusion.c:		write_word(currentSecHead->tableformat.sh_link, dest.f, dest.h.endianess);
+fusion.c:		write_word(currentSecHead->tableformat.sh_info, dest.f, dest.h.endianess);
+fusion.c:		write_word(currentSecHead->tableformat.sh_addralign, dest.f, dest.h.endianess);
+fusion.c:		write_word(currentSecHead->tableformat.sh_entsize, dest.f, dest.h.endianess);
+fusion.c:		currentSecHead = currentSecHead->suivant;
+fusion.c:	fseek(source.f, secHeader->tableformat.sh_offset, SEEK_SET);
+fusion.c:	for (int j = 0; j < secHeader->tableformat.sh_size; j++)
+fusion.c:	while (endDestSymTab->suivant != NULL)
+fusion.c:		endDestSymTab = endDestSymTab->suivant;
+fusion.c:			endDestSymTab = endDestSymTab->suivant;
+fusion.c:		currentB = currentB->suivant;
+fusion.c:	endDestSymTab->suivant = NULL;
+fusion.c:	while(headerA->tableformat.sh_type != SHT_SYMTAB && headerA->suivant != NULL)
+fusion.c:		headerA = headerA->suivant;
+fusion.c:	headerA->tableformat.sh_info = symTab1.nb;
+fusion.c:		if (ELF32_ST_BIND(current->tableformat.st_value) == STB_LOCAL)
+fusion.c:			ajout->tableformat = current->tableformat;
+fusion.c:			ajout->suivant = NULL;
+fusion.c:			endDestSymTab->suivant = ajout;
+fusion.c:		else if (ELF32_ST_BIND(current->tableformat.st_value) == STB_GLOBAL)
+fusion.c:				if (current->tableformat.st_name == currentts1->tableformat.st_name)
+fusion.c:				else if ((current->tableformat.st_shndx == SHN_UNDEF && currentts1->tableformat.st_shndx != SHN_UNDEF))
+fusion.c:					OneSymbol *temp = current->suivant;
+fusion.c:						current->suivant = temp;
+fusion.c:						previous->suivant = currentts1;
+fusion.c:						previous->suivant->suivant = temp;
+fusion.c:				else if ((current->tableformat.st_shndx != SHN_UNDEF && currentts1->tableformat.st_shndx == SHN_UNDEF))
+fusion.c:				else if (current->tableformat.st_shndx == SHN_UNDEF && currentts1->tableformat.st_shndx == SHN_UNDEF)
+fusion.c:				currentts1 = currentts1->suivant;
+fusion.c:			endDestSymTab->suivant = current;
+fusion.c:		else if (ELF32_ST_BIND(current->tableformat.st_value) == STB_WEAK)
+fusion.c:		else if (ELF32_ST_BIND(current->tableformat.st_value) == STB_LOPROC)
+fusion.c:		else if (ELF32_ST_BIND(current->tableformat.st_value) == STB_HIPROC)
+fusion.c:		printf("\t%d\n", ELF32_ST_BIND(current->tableformat.st_value) );
+fusion.c:	while (endReimp->suivant != NULL)
+fusion.c:		endReimp = endReimp->suivant;
+fusion.c:		ajout->tableformat = currentB->tableformat;
+fusion.c:		ajout->value = currentB->value;
+fusion.c:		ajout->name = currentB->name;
+fusion.c:		ajout->suivant = NULL;
+fusion.c:		endReimp->suivant = ajout;
+fusion.c:		endReimp = endReimp->suivant;
+fusion.c:		currentB = currentB->suivant;
+fusion.c:	endReimp->suivant = NULL;
+fusion.c:	while(reimpA->suivant != NULL)
+fusion.c:		reimpA = reimpA->suivant;
+fusion.c:		reimpB = reimpB->suivant;
+fusion.c:	printf("\t\tCOPIE DE LA TABLE %s\n", reimpB->name);
+fusion.c:	ajout->r.nb = reimpB->r.nb;
+fusion.c:	ajout->r.offset = reimpB->r.offset;
+fusion.c:	ajout->tete = nouveau;
+fusion.c:	OneReimp * current = reimpB->r.tete;
+fusion.c:	for(int i=0 ; i<reimpB->r.nb ; i++)
+fusion.c:		nouveau->tableformat = current ->tableformat;
+fusion.c:		nouveau->value = current->value;
+fusion.c:		nouveau->name = current->name;
+fusion.c:		nouveau->suivant = NULL;
+fusion.c:		ajout->suivant = nouveau;
+fusion.c:		ajout = ajout->suivant;
+fusion.c:		current = current->suivant;
+fusion.c:	reimpA->suivant = ajout;*/
+fusion.c:		printf("\tTABLE %s\n", reimpA->name);
+fusion.c:		while(reimpA->name != reimpB->name && reimpB != NULL)
+fusion.c:			reimpB = reimpB->suivant;
+fusion.c:			fusion_reimp(reimpA->r, reimpB->r);
+fusion.c:		reimpA = reimpA->suivant;
+Binary file fusion.o matches
+Binary file main1.o matches
+Binary file main2.o matches
+Binary file partie1 matches
+Binary file partie2 matches
+print.c:			if(head.headformat.e_ident[EI_OSABI]==0x00){printf("UNIX - Systeme V\n");}else if(head.headformat.e_ident[EI_OSABI]==0x03){printf("Linux\n");}else if(head.headformat.e_ident[EI_OSABI]==0x06){printf("Solaris\n");}else if(head.headformat.e_ident[EI_OSABI]==0x0A){printf("UNIX - True64\n");}else{printf("%hd\n", head.headformat.e_ident[EI_OSABI]);}
+print.c:		//printf("%x\t", c->t.sh_name);
+print.c:		print_string(string, current_head->tableformat.sh_name);
+print.c:		if(current_head->tableformat.sh_type==0){printf("SHT_NULL\t");}else if(current_head->tableformat.sh_type==1){printf("SHT_PROGBITS\t");}else if(current_head->tableformat.sh_type==2){printf("SHT_SYMTAB\t");}else if(current_head->tableformat.sh_type==3){printf("SHT_STRTAB\t");}else if(current_head->tableformat.sh_type==4){printf("SHT_RELA\t\t");}else if(current_head->tableformat.sh_type==5){printf("SHT_HASH\t");}else if(current_head->tableformat.sh_type==6){printf("SHT_DYNAMIC\t");}else if(current_head->tableformat.sh_type==7){printf("SHT_NOTE\t");}else if(current_head->tableformat.sh_type==8){printf("SHT_NOBITS\t");}else if(current_head->tableformat.sh_type==9){printf("SHT_REL\t\t");}else if(current_head->tableformat.sh_type==10){printf("SHT_SHLIB\t");}else if(current_head->tableformat.sh_type==11){printf("SHT_DYNSYM\t");}else if(current_head->tableformat.sh_type==0x70000000){printf("SHT_LOPROC\t");}else if(current_head->tableformat.sh_type==0x7fffffff){printf("SHT_HIPROC\t");}else if(current_head->tableformat.sh_type==0x80000000){printf("SHT_LOUSER\t");}else if(current_head->tableformat.sh_type==0xffffffff){printf("SHT_HIUSER\t");}else if(current_head->tableformat.sh_type==0x70000003){printf("ARM_ATTRIBUTES\t");}else{if(i==5){printf("%x\t", current_head->tableformat.sh_type);}else{printf("%x\t\t", current_head->tableformat.sh_type);}}
+print.c: 		printf("%lx\t", current_head->tableformat.sh_addr & 0xffffffff);
+print.c:		printf("%lx\t", current_head->tableformat.sh_offset & 0xffffffff);
+print.c:		printf("%lx\t", current_head->tableformat.sh_size & 0xffffffff);
+print.c:		printf("%lx\t", current_head->tableformat.sh_entsize & 0xffffffff);
+print.c:		printf("%lx\t", current_head->tableformat.sh_flags & 0xffffffff);
+print.c:		printf("%x \t", current_head->tableformat.sh_link);
+print.c:		printf("%x \t", current_head->tableformat.sh_info);
+print.c:		printf("%lx\n", current_head->tableformat.sh_addralign & 0xffffffff);
+print.c:		current_head = current_head->suivant;
+print.c:			current = current->suivant;
+print.c:		while(current->c != '\0'){			
+print.c:			printf("%c", current->c);	
+print.c:			current = current->suivant;
+print.c:		printf("%08lx ", current->tableformat.st_value & 0xffffffff);
+print.c:		printf("%08lx ", current->tableformat.st_size & 0xffffffff);
+print.c:		int type = ELF32_ST_TYPE(current->tableformat.st_info);
+print.c:		int bind = ELF32_ST_BIND(current->tableformat.st_info);
+print.c:		int other = current->tableformat.st_other;
+print.c:		printf("%04x ", current->tableformat.st_shndx);
+print.c:		print_string(string, current->tableformat.st_name);
+print.c:		current = current->suivant;
+print.c:		current_head = current_head->suivant;
+print.c:	fseek(f, current_head->tableformat.sh_offset ,SEEK_SET);
+print.c:	for(int j=0 ; j < current_head->tableformat.sh_size ; j++)
+print.c:	printf("[Nb]\tOffset   Info     Type     Val.-sym Noms-symboles\n");
+print.c:		printf("%08lx ", current_reimp->tableformat.r_offset & 0xffffffff);
+print.c:		printf("%08lx ", current_reimp->tableformat.r_info & 0xffffffff);
+print.c:		printf("%08lx ", ELF32_R_TYPE(current_reimp->tableformat.r_info) & 0xffffffff);
+print.c:		printf("%08x ", current_reimp->value);
+print.c:		printf("%08x ", current_reimp->name);
+print.c:		print_string(string2, current_reimp->name);
+print.c:		current_reimp = current_reimp->suivant;
+print.c:		print_table_reimp (current_List->r, string2, string1);
+print.c:		current_List = current_List->suivant;
+print.h:-Class    -Data     -Version    -OS/ABI    -ABI Version    -Type     -Machine	-...
+print.h:-Nr	-name		-...
+print.h:-Nr	-Value		-size 		-...
+print.h:-nb	-offset		-...
+Binary file print.o matches
+Binary file read.o matches
+read_func.c:			current->tableformat.sh_name = read_Elf32_Word(f, head.endianess);
+read_func.c:			current->tableformat.sh_type = read_Elf32_Word(f, head.endianess);
+read_func.c:				current->tableformat.sh_flags = read_Elf32_Word(f, head.endianess);
+read_func.c:				current->tableformat.sh_addr = read_Elf32_Addr(f, head.endianess);
+read_func.c:				current->tableformat.sh_flags = read_Elf64_Word(f, head.endianess);
+read_func.c:				current->tableformat.sh_addr = read_Elf64_Addr(f, head.endianess);
+read_func.c:			current->tableformat.sh_offset = read_Elf32_Off(f, head.endianess);
+read_func.c:			current->tableformat.sh_size = read_Elf32_Word(f, head.endianess);
+read_func.c:			current->tableformat.sh_link = read_Elf32_Word(f, head.endianess);
+read_func.c:			current->tableformat.sh_info = read_Elf32_Word(f, head.endianess);
+read_func.c:				current->tableformat.sh_addralign = read_Elf32_Word(f, head.endianess);
+read_func.c:				current->tableformat.sh_entsize = read_Elf32_Word(f, head.endianess);
+read_func.c:				current->tableformat.sh_addralign = read_Elf64_Word(f, head.endianess);
+read_func.c:				current->tableformat.sh_entsize = read_Elf64_Word(f, head.endianess);
+read_func.c:			precedent->suivant = current;
+read_func.c:			if(c->tableformat.sh_type == SHT_REL || c->tableformat.sh_type == SHT_RELA)
+read_func.c:				int index = c->tableformat.sh_link;
+read_func.c:					c2 = c2->suivant;
+read_func.c:				symbole_table.nb = c2->tableformat.sh_size / 16;
+read_func.c:				fseek(f, c2->tableformat.sh_offset, SEEK_SET);
+read_func.c:						current->tableformat.st_name = read_Elf32_Word(f, head.endianess);
+read_func.c:						current->tableformat.st_value = read_Elf32_Addr(f, head.endianess);
+read_func.c:						current->tableformat.st_size = read_Elf32_Word(f, head.endianess);
+read_func.c:						current->tableformat.st_info = read_unsigned_char(f);
+read_func.c:						current->tableformat.st_other = read_unsigned_char(f);
+read_func.c:						current->tableformat.st_shndx = read_Elf32_Half(f, head.endianess);
+read_func.c:						precedent->suivant = current;
+read_func.c:		c = c->suivant;
+read_func.c:	int nbFinal = -1;
+read_func.c:		if(current_head->tableformat.sh_type == SHT_REL || current_head->tableformat.sh_type == SHT_RELA)
+read_func.c:				r.nb = current_head->tableformat.sh_size / 8;
+read_func.c:				r.offset = current_head->tableformat.sh_offset;
+read_func.c:				fseek(f, current_head->tableformat.sh_offset ,SEEK_SET); //Offset
+read_func.c:				for(int j=0 ; j < current_head->tableformat.sh_size / 8 ; j++) // Size
+read_func.c:						current->tableformat.r_offset = read_Elf32_Addr(f, head.endianess);
+read_func.c:						current->tableformat.r_info = read_Elf32_Word(f, head.endianess);
+read_func.c:						current->tableformat.r_offset = read_Elf64_Addr(f, head.endianess);
+read_func.c:						current->tableformat.r_info = read_Elf64_Word(f, head.endianess);
+read_func.c:					for (int x=0 ; x< ELF32_R_SYM(current->tableformat.r_info) ; x++)
+read_func.c:						symb_curent = symb_curent->suivant;
+read_func.c:					current->value = symb_curent->tableformat.st_value;
+read_func.c:					current->name = symb_curent->tableformat.st_name;
+read_func.c:					precedent->suivant = current;
+read_func.c:		current_head = current_head->suivant;
+read_func.c:	if (nbFinal == -1){ 
+read_func.c:		r.offset = -1;
+read_func.c:	while (r.offset != -1)
+read_func.c:		current->r = r;
+read_func.c:		precedent->suivant = current;
+read_func.c:		if (current_head->tableformat.sh_type != SHT_STRTAB)
+read_func.c:			while(current_head->tableformat.sh_type != SHT_STRTAB)
+read_func.c:				current_head = current_head->suivant;
+read_func.c:			current_head = current_head->suivant->suivant;
+read_func.c:	fseek(f, current_head->tableformat.sh_offset ,SEEK_SET);
+read_func.c:	for(int i=0 ; i<current_head->tableformat.sh_size ; i++)
+read_func.c:		current->c = tmp;
+read_func.c:		precedent->suivant = current;
+read_func.c:		current1 = current1->suivant;	
+read_func.c:		current2 = current2->suivant;	
+read_func.c:		currentg = currentg->suivant;
+read_func.c:		OneReimp *current3 = precedentg->r.tete;
+read_func.c:			current3 = current3->suivant;	
+read_func.c:		current4 = current4->suivant;	
+read_func.c:		current5 = current5->suivant;	
+read_func.h:   effets de bord : Remplissage des partie de Elf_header soit  :-e_type grâce à read_Elf32_Half
+read_func.h:   								-e_machine grâce à read_Elf32_Half
+read_func.h:   								-e_version grâce à read_Elf32_Word
+read_func.h:   								-e_machine grâce à read_Elf32_Half
+read_func.h:   								-e_entry grâce à read_Elf32_Adrr (ou read_Elf64_Adrr)
+read_func.h:   								-e_phoff grâce à read_Elf32_Off (ou read_Elf64_Off) 	
+read_func.h:   								-e_shoff grâce à read_Elf32_Off (ou read_Elf64_Off) 
+read_func.h:   								-e_flash grâce à read_Elf32_Word (ou read_Elf32_Off)
+read_func.h:   								-...
+read_func.h:   effets de bord : Remplissage des partie de Elf_header soit  :-sh_type grâce à read_Elf32_Half
+read_func.h:   								-sh_machine grâce à read_Elf32_Half
+read_func.h:   								-sh_version grâce à read_Elf32_Word
+read_func.h:   								-sh_machine grâce à read_Elf32_Half
+read_func.h:   								-sh_entry grâce à read_Elf32_Adrr (ou read_Elf64_Adrr)
+read_func.h:   								-sh_phoff grâce à read_Elf32_Off (ou read_Elf64_Off) 	
+read_func.h:   								-sh_shoff grâce à read_Elf32_Off (ou read_Elf64_Off) 
+read_func.h:   								-sh_flash grâce à read_Elf32_Word (ou read_Elf32_Off)
+read_func.h:   								-...
+Binary file read_func.o matches

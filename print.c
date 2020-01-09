@@ -112,7 +112,6 @@ void print_section_headers(SecHead section, StringTab string)
 		printf("[%d]\t", i);
 
 		//printf("%x\t", c->t.sh_name);
-		//Ici l'affichage est adapté uniquement pour nos 2 exemples (es.o accessmem.o)
 		print_string(string, current_head->tableformat.sh_name);
 		if(i!=2 && i!=5 && i!=6){printf("\t");}
 		//traitement des different types
@@ -133,16 +132,17 @@ void print_section_headers(SecHead section, StringTab string)
 
 }
 
-
+//fonction permettant d'afficher lles caracteres
 void  print_string(StringTab string, int pos)
 {
 	OneString *current = string.tete;
-
+	//si on a encore des nom non parcourus
 	if(pos <= string.nb){
+		//tant que l'on n'est pas des la partie que l'on veux afficher
 		for(int i = 0; i < pos; i++){
 			current = current->suivant;
 		}
-
+		//affichage caractère pas caractère
 		while(current->c != '\0'){			
 			printf("%c", current->c);	
 			current = current->suivant;
@@ -151,29 +151,36 @@ void  print_string(StringTab string, int pos)
 	printf("\t");
 }
 
-
+//affichage table symbole
 void print_table_symboles(SymTab symb_table, StringTab string)
 {
-	
+	//DEBUT de l'affichage
 	printf("La table de symboles contient %d entrées :\n", symb_table.nb);
 	printf("[Nr]\tValue\t Size\t  Type\t\tBind\t   Vis\t    Ndx  Name\n");
 
 	OneSymbol *current = symb_table.tete;
 
+	//tant que l'on a pas tout afficher
 	for(int i=0 ; i < symb_table.nb ; i++)
-	{
+	{	
+		//affichage
 		printf("[%d]\t", i);
 		printf("%08lx ", current->tableformat.st_value & 0xffffffff);
 		printf("%08lx ", current->tableformat.st_size & 0xffffffff);
+		//traitement des differents TYPE
 		int type = ELF32_ST_TYPE(current->tableformat.st_info);
 		if(type == 0){printf("STT_NOTYPE\t");}else if(type == 1){printf("STT_OBJECT\t");}else if(type == 2){printf("STT_FUNC\t");}else if(type == 3){printf("STT_SECTION\t");}else if(type == 4){printf("STT_FILE\t");}else if(type == 13){printf("STT_LOPROC\t");}else if(type == 15){printf("STT_HIPROC\t");}else{printf("%x\t",type);}
+		//traitement des differents BIND
 		int bind = ELF32_ST_BIND(current->tableformat.st_info);
 		if(bind == 0){printf("STB_LOCAL  ");}else if(bind == 1){printf("STB_GLOBAL ");}else if(bind == 2){printf("STB_WEAK\t");}else if(bind == 13){printf("STB_LOPROC\t");}else if(bind == 15){printf("STB_HIPROC\t");}else{printf("%02x\t   ",bind);}
+		//traitement des different other (si egal 0 ou non
 		int other = current->tableformat.st_other;
 		if(other == 0){printf("DEFAULT  ");}else{printf("%02x\t    ", other);}
+		
 		printf("%04x ", current->tableformat.st_shndx);
 		print_string(string, current->tableformat.st_name);
 		printf("\n");
+		//passage au suivant
 		current = current->suivant;
 	}
 	printf("\n\n");
@@ -184,14 +191,23 @@ void print_table_symboles(SymTab symb_table, StringTab string)
 
 void print_section(FILE * f, SecHead section, int i)
 {
+	//DEBUT de l'affichage
 	printf("Affichage de la section %d:\n", i);
 
 	OneHeader *current_head = section.tete;
-	for(int j=0 ; j<i ; j++)
+	//tant que l'on n'est pas dans la section
+	for(int j=0 ; j<i ; j++){
 		current_head = current_head->suivant;
-
+		if(current_head->suivant == NULL){
+			printf("Numéro de section invalide : Max = %d\n", j);
+			// Affichage de la section par défaut
+			print_section(f, section, 1);
+			return;
+		}
+	}
+	//placement dans la section 
 	fseek(f, current_head->tableformat.sh_offset ,SEEK_SET);
-
+	//affichage
 	for(int j=0 ; j < current_head->tableformat.sh_size ; j++)
 	{
 		printf("%02x ", read_unsigned_char(f));
@@ -203,11 +219,13 @@ void print_section(FILE * f, SecHead section, int i)
 
 void print_table_reimp(ReimpTab r, StringTab string2, StringTab string1)
 {
+	//Debut d'affichage
 	printf("Section de réadressage '.rel.text' à l'adresse de décalage 0x%x contient %d entrées :\n", r.offset, r.nb);
 	printf("[Nb]\tOffset   Info     Type     Val.-sym Noms-symboles\n");
 
 	OneReimp *current_reimp = r.tete;
-
+	
+	//tant que l'on a pas affiche toute la table
 	for(int i=0 ; i < r.nb ; i++)
 	{
 		printf("[%d]\t", i);
@@ -218,17 +236,18 @@ void print_table_reimp(ReimpTab r, StringTab string2, StringTab string1)
 		printf("%08x ", current_reimp->name);
 		print_string(string2, current_reimp->name);
 		printf("\n");
-
+		//passage a la suite de la table
 		current_reimp = current_reimp->suivant;
 	}
 	printf("\n\n");
 }
 
 
-
+//fonction appellant la fonction print_table_réimp
 void print_table_reimp_new(ListReimpTab LR, StringTab string2, StringTab string1)
 {
 	OneList *current_List = LR.tete;
+	//tant que l'on a pas parcourus tout les reimplementation 
 	for(int i=0 ; i < LR.nb ; i++)
 	{
 		print_table_reimp (current_List->r, string2, string1);

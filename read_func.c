@@ -155,7 +155,7 @@ SymTab read_table_symboles(FILE * f, SecHead section, Elf_Header head)
 			{
 				//Get the index of the symbol table section header
 				int index = c->tableformat.sh_link;
-				//passe les parties inutiles
+				//passe
 				for(int j=0 ; j<index ; j++)
 					c2 = c2->suivant;
 
@@ -191,7 +191,7 @@ SymTab read_table_symboles(FILE * f, SecHead section, Elf_Header head)
 
 ReimpTab read_table_reimplantation(FILE * f, SecHead section, SymTab symbole_table, Elf_Header head, int nb)
 {
-	
+	//initialisation des variables
 	OneHeader *current_head = section.tete;
 	OneSymbol *symb_curent = symbole_table.tete;
 
@@ -205,7 +205,7 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead section, SymTab symbole_tab
 	int compt =0;
 	int nbFinal = -1;
 
-
+	//tant que l'on a pas regarde toute les section 
 	for (int i = 0; i < section.nb; i++){
 		
 		// Chek type = SHT_REL ou RELA
@@ -215,15 +215,17 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead section, SymTab symbole_tab
 			{
 				r.nb = current_head->tableformat.sh_size / 8;
 				r.offset = current_head->tableformat.sh_offset;
-
+				//placement dans le fichier
 				fseek(f, current_head->tableformat.sh_offset ,SEEK_SET); //Offset
 
 				for(int j=0 ; j < current_head->tableformat.sh_size / 8 ; j++) // Size
 				{ 
+					//cas 32 bits
 					if(head.architecture==1){
 						current->tableformat.r_offset = read_Elf32_Addr(f, head.endianess);
 						current->tableformat.r_info = read_Elf32_Word(f, head.endianess);
 					}
+					//cas 64 Bits
 					else if (head.architecture==2){
 
 						current->tableformat.r_offset = read_Elf64_Addr(f, head.endianess);
@@ -232,10 +234,10 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead section, SymTab symbole_tab
 					
 					for (int x=0 ; x< ELF32_R_SYM(current->tableformat.r_info) ; x++)
 						symb_curent = symb_curent->suivant;
-
+					//insertion de value et de name
 					current->value = symb_curent->tableformat.st_value;
 					current->name = symb_curent->tableformat.st_name;
-
+					//stockage et passage au suivant
 					symb_curent = symbole_table.tete;
 					precedent = current;
 					current = malloc (sizeof(OneReimp));
@@ -247,11 +249,11 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead section, SymTab symbole_tab
 			}
 			else compt++;
 		}
-
+		//passage suivant
 		current_head = current_head->suivant;
 	}
 	
-	
+	//si on est pas rentrer une seul fois dans compt == n (condition d'arret de la fonction read_table_reimplementation_new)
 	if (nbFinal == -1){ 
 		r.offset = -1;
 	}
@@ -262,22 +264,24 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead section, SymTab symbole_tab
 
 ListReimpTab read_table_reimplantation_new(FILE * f, SecHead section, SymTab symbole_table, Elf_Header head)
 {
+	//initialisation des variables
 	ListReimpTab LR;
 
 	OneList *current, *precedent;
 	current = malloc(sizeof(OneList));
 	LR.tete = current;
 	LR.nb = 0;
-
+	//appel de la fonction read_table_reimplentation pour ajouter 
 	ReimpTab r = read_table_reimplantation(f, section, symbole_table, head, 0);
-
+	//tant que on as des element a traiter
 	while (r.offset != -1)
-	{
+	{	
+		//mise a jour des element
 		current->r = r;
 		LR.nb ++;
-		
+		//appel de nouveau a la fontion
 		r = read_table_reimplantation(f, section, symbole_table, head, LR.nb);
-		
+		//passage au suivant
 		precedent = current;
 		current = malloc(sizeof(OneList));
 		precedent->suivant = current;
@@ -292,9 +296,11 @@ ListReimpTab read_table_reimplantation_new(FILE * f, SecHead section, SymTab sym
 
 StringTab read_string_table(FILE * f, Elf_Header head, SecHead section, int nb)
 {
+	//initialisation de la variable
 	OneHeader *current_head = section.tete;
 	for (int i=0 ; i<nb ; i++)
 	{
+			
 		if (current_head->tableformat.sh_type != SHT_STRTAB)
 		{
 			while(current_head->tableformat.sh_type != SHT_STRTAB)
@@ -306,9 +312,10 @@ StringTab read_string_table(FILE * f, Elf_Header head, SecHead section, int nb)
 		}
 	}
 
-
+	//placement dans le fichier 
 	fseek(f, current_head->tableformat.sh_offset ,SEEK_SET);
-
+	
+	//initialisation des variables
 	StringTab string;
 	string.nb = 0;
 
@@ -322,10 +329,11 @@ StringTab read_string_table(FILE * f, Elf_Header head, SecHead section, int nb)
 
 	for(int i=0 ; i<current_head->tableformat.sh_size ; i++)
 	{
+		//stockage
 		tmp = read_unsigned_char(f);
 		current->c = tmp;
 		string.nb ++;
-
+		//passage au suivant
 		precedent = current;
 		current = malloc (sizeof(OneString));
 		precedent->suivant = current;
@@ -335,7 +343,7 @@ StringTab read_string_table(FILE * f, Elf_Header head, SecHead section, int nb)
 
 
 
-// UTILS
+// fonction principale initialisation OFile
 
 OFile initOFile(FILE * fich_o)
 {
@@ -350,15 +358,16 @@ OFile initOFile(FILE * fich_o)
 	return a;
 }
 
-void printOFile(OFile a)
+//fonction principale d'affichage
+void printOFile(OFile a, int sectionNumber)
 {
 	print_header(a.h);
 	print_section_headers(a.s, a.string1);
-	print_section(a.f, a.s, 1);
+	print_section(a.f, a.s, sectionNumber);
 	print_table_symboles(a.st, a.string2);
 	print_table_reimp_new(a.LR, a.string2, a.string1);
 }
-
+//fonction vidage 
 void end(OFile a)
 {
 	OneHeader *current1 = a.s.tete;
