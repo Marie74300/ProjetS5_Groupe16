@@ -196,8 +196,15 @@ void print_section(FILE * f, SecHead section, int i)
 
 	OneHeader *current_head = section.tete;
 	//tant que l'on n'est pas dans la section
-	for(int j=0 ; j<i ; j++)
+	for(int j=0 ; j<i ; j++){
 		current_head = current_head->suivant;
+		if(current_head->suivant == NULL){
+			printf("Numéro de section invalide : Max = %d\n", j);
+			// Affichage de la section par défaut
+			print_section(f, section, 1);
+			return;
+		}
+	}
 	//placement dans la section 
 	fseek(f, current_head->tableformat.sh_offset ,SEEK_SET);
 	//affichage

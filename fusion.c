@@ -51,26 +51,32 @@ void fusion(OFile a, OFile b, OFile dest)
 			offset_temporaire = currentOffset;
 			currentOffset += currentSecHead->tableformat.sh_size;
 
-			write_section(a, dest, currentSecHead);
+			/*if (currentSecHead->tableformat.sh_type != SHT_SYMTAB && currentSecHead->tableformat.sh_type != SHT_RELA)
+			{*/
+				write_section(a, dest, currentSecHead);
 
 
-			// SEARCH FOR SAME SECTION IN FILE B
+				// SEARCH FOR SAME SECTION IN FILE B
 
-			while (headerOfB->tableformat.sh_name != currentSecHead->tableformat.sh_name && headerOfB->suivant != NULL)
+				while (headerOfB->tableformat.sh_name != currentSecHead->tableformat.sh_name && headerOfB->suivant != NULL)
+				{
+					headerOfB = headerOfB->suivant;
+				}
+
+				if (headerOfB->tableformat.sh_name == currentSecHead->tableformat.sh_name 
+					&& currentSecHead->tableformat.sh_type != SHT_SYMTAB && currentSecHead->tableformat.sh_type != SHT_RELA)
+				{
+					write_section(b, dest, headerOfB);
+					currentOffset += headerOfB->tableformat.sh_size;
+					currentSecHead->tableformat.sh_size += headerOfB->tableformat.sh_size;
+				}
+
+				headerOfB = b.s.tete;
+				// END SEARCH
+			/*}
+			else if (currentSecHead->tableformat.sh_type == SHT_SYMTAB)
 			{
-				headerOfB = headerOfB->suivant;
-			}
-
-			if (headerOfB->tableformat.sh_name == currentSecHead->tableformat.sh_name 
-				&& currentSecHead->tableformat.sh_type != SHT_SYMTAB && currentSecHead->tableformat.sh_type != SHT_RELA)
-			{
-				write_section(b, dest, headerOfB);
-				currentOffset += headerOfB->tableformat.sh_size;
-				currentSecHead->tableformat.sh_size += headerOfB->tableformat.sh_size;
-			}
-
-			headerOfB = b.s.tete;
-			// END SEARCH
+			}*/
 
 			currentSecHead->tableformat.sh_offset = offset_temporaire;
 			currentSecHead = currentSecHead->suivant;
@@ -372,43 +378,62 @@ void copie_reimp(ListReimpTab a, ListReimpTab b, int num)
 {
 	OneList *reimpA = a.tete;
 	OneList *reimpB = b.tete;
+	int x = 0;
 
+	// ON CHERCHE LA FIN DE LA LISTE DES REIMPLEMENTATIONS DE A
 	while(reimpA->suivant != NULL)
 		reimpA = reimpA->suivant;
 
+	// ON CHERCHE LA TABLE DES REIMPLEMENTATIONS DE B A COPIER
 	for (int i=0 ; i<num ; i++)
 		reimpB = reimpB->suivant;
 
 	printf("\t\tCOPIE DE LA TABLE %s\n", reimpB->name);
 
-	/*OneList * ajout = malloc(sizeof(OneList));
-
+	// ON CREE UNE NOUVELLE TABLE DE REIMPLEMENTATIONS
+	OneList * ajout = malloc(sizeof(OneList));
+	while (reimpB->name[x] != '\0'){
+		ajout->name[x] = reimpB->name[x];
+		x++;
+	}
+	ajout->name[x] = reimpB->name[x];
 	ajout->r.nb = reimpB->r.nb;
 	ajout->r.offset = reimpB->r.offset;
 
-	OneReimp *nouveau;
-	OneReimp *precedent;
+	// ON PREPARE LES NOUVEAU ELEMENTS
+	OneReimp *nouveau, *precedent;
+	nouveau = malloc(sizeof(OneReimp));
+	ajout->r.tete = nouveau;
 
-	ajout->tete = nouveau;
-
+	// LA VARIABLE CURRENT VA PARCOURIR TOUS LES ELEMENTS DE LA TABLE DES REIMPLEMENTATIONS B
 	OneReimp * current = reimpB->r.tete;
 
 	for(int i=0 ; i<reimpB->r.nb ; i++)
 	{
-		OneReimp * nouveau = malloc(sizeof(OneReimp));
-
+		// ON COPIE LES VALEURS
 		nouveau->tableformat = current ->tableformat;
 		nouveau->value = current->value;
 		nouveau->name = current->name;
 		nouveau->suivant = NULL;
 
-		ajout->suivant = nouveau;
-		ajout = ajout->suivant;
-		
-		current = current->suivant;
+		// ON AJOUTE
+		precedent = nouveau;
+		nouveau = malloc(sizeof(OneReimp));
+		precedent->suivant = nouveau;
 	}
 
-	reimpA->suivant = ajout;*/
+	reimpA->suivant = ajout;
+}
+
+int comp_string(char * a, char * b)
+{
+	int x = 0;
+	while (a[x] != '\0'){
+		if (a[x] != b[x]) return 0;
+		x++;
+	}
+	if (a[x] != b[x]) return 0;
+	return 1;
 }
 
 void fusion_table_reimplementation(OFile a, OFile b, OFile dest)
@@ -424,7 +449,7 @@ void fusion_table_reimplementation(OFile a, OFile b, OFile dest)
 	{
 		printf("\tTABLE %s\n", reimpA->name);
 
-		while(reimpA->name != reimpB->name && reimpB != NULL)
+		while(comp_string(reimpA->name, reimpB->name) && reimpB != NULL)
 			reimpB = reimpB->suivant;
 			
 		if (reimpB != NULL)

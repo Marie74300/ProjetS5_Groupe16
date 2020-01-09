@@ -130,62 +130,46 @@ SecHead read_section_headers(FILE * f, Elf_Header head)
 }
 
 
-
-
-
 // SYMBOL TABLE
 
 SymTab read_table_symboles(FILE * f, SecHead section, Elf_Header head)
 {
-	//initialisation des variables 
-	SymTab symbole_table;
-	symbole_table.tete = NULL;
+    //initialisation des variables 
+    SymTab symbole_table;
+    symbole_table.tete = NULL;
 
-	OneSymbol *current, *precedent;
-	current = malloc (sizeof(OneSymbol));
-	symbole_table.tete = current;
+    OneSymbol *current, *precedent;
+    current = malloc (sizeof(OneSymbol));
+    symbole_table.tete = current;
 
-	OneHeader *c = section.tete;
-	OneHeader *c2 = section.tete;
-	//insertion des symbole selon leurs variables respectivent par rapport au nombe de section 
-	for (int i = 0; i < section.nb; i++) 
-	{
-			//Check si type == SHT_REL or SHT_RELA
-			if(c->tableformat.sh_type == SHT_REL || c->tableformat.sh_type == SHT_RELA)
-			{
-				//Get the index of the symbol table section header
-				int index = c->tableformat.sh_link;
-				//passe
-				for(int j=0 ; j<index ; j++)
-					c2 = c2->suivant;
-
-				symbole_table.nb = c2->tableformat.sh_size / 16;
-				//placement dans le fichier 
-				fseek(f, c2->tableformat.sh_offset, SEEK_SET);
-					for(int j=0 ; j < symbole_table.nb ; j++)
-					{
-						current->tableformat.st_name = read_Elf32_Word(f, head.endianess);
-						current->tableformat.st_value = read_Elf32_Addr(f, head.endianess);
-						current->tableformat.st_size = read_Elf32_Word(f, head.endianess);
-						current->tableformat.st_info = read_unsigned_char(f);
-						current->tableformat.st_other = read_unsigned_char(f);
-						current->tableformat.st_shndx = read_Elf32_Half(f, head.endianess);
-						//changement de donnÃ©e Ã  traitÃ© et stockage
-						precedent = current;
-						current = malloc (sizeof(OneSymbol));
-						precedent->suivant = current;
-					}
-			}
-		
-		c = c->suivant;
-		c2 = section.tete;
-	}
-	return symbole_table;
+    OneHeader *c = section.tete;
+    //insertion des symbole selon leurs variables respectivent par rapport au nombe de section 
+    for (int i = 0; i < section.nb; i++) 
+    {
+            //Check si type == SHT_SYMTAB
+            if(c->tableformat.sh_type == SHT_SYMTAB)
+            {
+                symbole_table.nb = c->tableformat.sh_size / 16;
+                //placement dans le fichier 
+                fseek(f, c->tableformat.sh_offset, SEEK_SET);
+                for(int j=0 ; j < symbole_table.nb ; j++)
+                {
+                    current->tableformat.st_name = read_Elf32_Word(f, head.endianess);
+                    current->tableformat.st_value = read_Elf32_Addr(f, head.endianess);
+                    current->tableformat.st_size = read_Elf32_Word(f, head.endianess);
+                    current->tableformat.st_info = read_unsigned_char(f);
+                    current->tableformat.st_other = read_unsigned_char(f);
+                    current->tableformat.st_shndx = read_Elf32_Half(f, head.endianess);
+                    //changement de donnée à traité et stockage
+                    precedent = current;
+                    current = malloc (sizeof(OneSymbol));
+                    precedent->suivant = current;
+                }
+            }
+        c = c->suivant;
+    }
+    return symbole_table;
 }
-
-
-
-
 
 // REIMPLEMENTATION TABLE
 
@@ -359,11 +343,11 @@ OFile initOFile(FILE * fich_o)
 }
 
 //fonction principale d'affichage
-void printOFile(OFile a)
+void printOFile(OFile a, int sectionNumber)
 {
 	print_header(a.h);
 	print_section_headers(a.s, a.string1);
-	print_section(a.f, a.s, 1);
+	print_section(a.f, a.s, sectionNumber);
 	print_table_symboles(a.st, a.string2);
 	print_table_reimp_new(a.LR, a.string2, a.string1);
 }
