@@ -79,6 +79,7 @@ typedef struct _OneList OneList;
 struct _OneList
 {
 	ReimpTab r;
+	char name[26];
 	OneList * suivant;
 };
 typedef struct

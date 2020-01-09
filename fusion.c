@@ -333,6 +333,8 @@ int comparaison(SymTab symTab1, OneSymbol *current, OneSymbol *previous, OneSymb
 
 void fusion_reimp(ReimpTab reimpA, ReimpTab reimpB)
 {
+	OneReimp * ajout;
+
 	// GET LAST REIMP
 	OneReimp * endReimp = reimpA.tete;
 	while (endReimp->suivant != NULL)
@@ -345,13 +347,68 @@ void fusion_reimp(ReimpTab reimpA, ReimpTab reimpB)
 	for (int i=0 ; i < reimpB.nb ; i++)
 	{
 		printf("\t\t%d/%d\n", i + 1, reimpB.nb);
+		
+		ajout = malloc(sizeof(OneReimp));
+		ajout->tableformat = currentB->tableformat;
+		ajout->value = currentB->value;
+		ajout->name = currentB->name;
+		ajout->suivant = NULL;
+
+		endReimp->suivant = ajout;
+		endReimp = endReimp->suivant;
+		
 		currentB = currentB->suivant;
+		reimpA.nb++;
 	}
 	endReimp->suivant = NULL;
 	
 
 	// MODIFICATIONS
+	//reimpA.offset = 0;
 	printf("\n");
+}
+
+void copie_reimp(ListReimpTab a, ListReimpTab b, int num)
+{
+	OneList *reimpA = a.tete;
+	OneList *reimpB = b.tete;
+
+	while(reimpA->suivant != NULL)
+		reimpA = reimpA->suivant;
+
+	for (int i=0 ; i<num ; i++)
+		reimpB = reimpB->suivant;
+
+	printf("\t\tCOPIE DE LA TABLE %s\n", reimpB->name);
+
+	/*OneList * ajout = malloc(sizeof(OneList));
+
+	ajout->r.nb = reimpB->r.nb;
+	ajout->r.offset = reimpB->r.offset;
+
+	OneReimp *nouveau;
+	OneReimp *precedent;
+
+	ajout->tete = nouveau;
+
+	OneReimp * current = reimpB->r.tete;
+
+	for(int i=0 ; i<reimpB->r.nb ; i++)
+	{
+		OneReimp * nouveau = malloc(sizeof(OneReimp));
+
+		nouveau->tableformat = current ->tableformat;
+		nouveau->value = current->value;
+		nouveau->name = current->name;
+		nouveau->suivant = NULL;
+
+		ajout->suivant = nouveau;
+		ajout = ajout->suivant;
+		
+		current = current->suivant;
+	}
+
+	reimpA->suivant = ajout;*/
 }
 
 void fusion_table_reimplementation(OFile a, OFile b, OFile dest)
@@ -359,18 +416,31 @@ void fusion_table_reimplementation(OFile a, OFile b, OFile dest)
 	OneList *reimpA = a.LR.tete;
 	OneList *reimpB = b.LR.tete;
 
-	int nb;
-	if (a.LR.nb > b.LR.nb) nb = a.LR.nb;
-	else nb = b.LR.nb; 
+	int faits[b.LR.nb];
+	for(int i=0 ; i<b.LR.nb ; i++)
+		faits[i] = 0;
 
-	for (int i=0 ; i < nb ; i++)
+	for (int i=0 ; i < a.LR.nb ; i++)
 	{
-		printf("\tFUSION DE LA TABLE %d\n", i);
+		printf("\tTABLE %s\n", reimpA->name);
 
-		fusion_reimp(reimpA->r, reimpB->r);
+		while(reimpA->name != reimpB->name && reimpB != NULL)
+			reimpB = reimpB->suivant;
+			
+		if (reimpB != NULL)
+		{
+			printf("\t\tFUSION\n");
+			fusion_reimp(reimpA->r, reimpB->r);
+			faits[i] = 1;
+		}
+
 		reimpA = reimpA->suivant;
-		reimpB = reimpB->suivant;
+		reimpB = b.LR.tete;
+	}
 
-		i++;
+	for(int i=0 ; i<b.LR.nb ; i++)
+	{
+		if (faits[i] == 0)
+			copie_reimp (a.LR, b.LR, i);
 	}
 }
