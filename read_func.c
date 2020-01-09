@@ -130,46 +130,62 @@ SecHead read_section_headers(FILE * f, Elf_Header head)
 }
 
 
+
+
+
 // SYMBOL TABLE
 
 SymTab read_table_symboles(FILE * f, SecHead section, Elf_Header head)
 {
-    //initialisation des variables 
-    SymTab symbole_table;
-    symbole_table.tete = NULL;
+	//initialisation des variables 
+	SymTab symbole_table;
+	symbole_table.tete = NULL;
 
-    OneSymbol *current, *precedent;
-    current = malloc (sizeof(OneSymbol));
-    symbole_table.tete = current;
+	OneSymbol *current, *precedent;
+	current = malloc (sizeof(OneSymbol));
+	symbole_table.tete = current;
 
-    OneHeader *c = section.tete;
-    //insertion des symbole selon leurs variables respectivent par rapport au nombe de section 
-    for (int i = 0; i < section.nb; i++) 
-    {
-            //Check si type == SHT_SYMTAB
-            if(c->tableformat.sh_type == SHT_SYMTAB)
-            {
-                symbole_table.nb = c->tableformat.sh_size / 16;
-                //placement dans le fichier 
-                fseek(f, c->tableformat.sh_offset, SEEK_SET);
-                for(int j=0 ; j < symbole_table.nb ; j++)
-                {
-                    current->tableformat.st_name = read_Elf32_Word(f, head.endianess);
-                    current->tableformat.st_value = read_Elf32_Addr(f, head.endianess);
-                    current->tableformat.st_size = read_Elf32_Word(f, head.endianess);
-                    current->tableformat.st_info = read_unsigned_char(f);
-                    current->tableformat.st_other = read_unsigned_char(f);
-                    current->tableformat.st_shndx = read_Elf32_Half(f, head.endianess);
-                    //changement de donnée à traité et stockage
-                    precedent = current;
-                    current = malloc (sizeof(OneSymbol));
-                    precedent->suivant = current;
-                }
-            }
-        c = c->suivant;
-    }
-    return symbole_table;
+	OneHeader *c = section.tete;
+	OneHeader *c2 = section.tete;
+	//insertion des symbole selon leurs variables respectivent par rapport au nombe de section 
+	for (int i = 0; i < section.nb; i++) 
+	{
+			//Check si type == SHT_REL or SHT_RELA
+			if(c->tableformat.sh_type == SHT_REL || c->tableformat.sh_type == SHT_RELA)
+			{
+				//Get the index of the symbol table section header
+				int index = c->tableformat.sh_link;
+				//passe
+				for(int j=0 ; j<index ; j++)
+					c2 = c2->suivant;
+
+				symbole_table.nb = c2->tableformat.sh_size / 16;
+				//placement dans le fichier 
+				fseek(f, c2->tableformat.sh_offset, SEEK_SET);
+					for(int j=0 ; j < symbole_table.nb ; j++)
+					{
+						current->tableformat.st_name = read_Elf32_Word(f, head.endianess);
+						current->tableformat.st_value = read_Elf32_Addr(f, head.endianess);
+						current->tableformat.st_size = read_Elf32_Word(f, head.endianess);
+						current->tableformat.st_info = read_unsigned_char(f);
+						current->tableformat.st_other = read_unsigned_char(f);
+						current->tableformat.st_shndx = read_Elf32_Half(f, head.endianess);
+						//changement de donnÃ©e Ã  traitÃ© et stockage
+						precedent = current;
+						current = malloc (sizeof(OneSymbol));
+						precedent->suivant = current;
+					}
+			}
+		
+		c = c->suivant;
+		c2 = section.tete;
+	}
+	return symbole_table;
 }
+
+
+
+
 
 // REIMPLEMENTATION TABLE
 
@@ -275,6 +291,51 @@ ListReimpTab read_table_reimplantation_new(FILE * f, SecHead section, SymTab sym
 }
 
 
+void get_string(StringTab string, int pos, char name[])
+{
+    OneString *current = string.tete;
+    int x = 0;
+	
+    if(pos <= string.nb){
+        for(int i = 0; i < pos; i++){
+            current = current->suivant;
+        }
+
+        while(current->c != '\0'){    
+            name[x] = current->c; 
+            current = current->suivant;
+            x++;
+        }
+    }
+    name[x] = '\0';
+    x++;
+}
+
+void get_reimp_names(OFile a)
+{
+	OneList * reimp = a.LR.tete;
+	OneHeader * header = a.s.tete;
+
+	int nb = 1;
+	int compt = 0;
+
+	while (reimp->suivant != NULL)
+	{
+		while (compt != nb)
+		{
+			header = header->suivant;
+			if (header->tableformat.sh_type == SHT_REL) compt++;
+		}
+		
+		get_string(a.string1, header->tableformat.sh_name, reimp->name);
+		
+		header = a.s.tete;
+		nb++;
+		compt = 0;
+		reimp = reimp->suivant;
+	}
+
+}
 
 // STRING TABLE
 
@@ -333,12 +394,18 @@ OFile initOFile(FILE * fich_o)
 {
 	OFile a;
 	a.f = fich_o;
+
 	a.h = read_header(fich_o);
 	a.s = read_section_headers(fich_o, a.h);
+
 	a.string1 = read_string_table(fich_o, a.h, a.s, 1);
 	a.string2 = read_string_table(fich_o, a.h, a.s, 2);
+
 	a.st = read_table_symboles(fich_o, a.s, a.h);
+
 	a.LR = read_table_reimplantation_new(fich_o, a.s, a.st, a.h);
+	get_reimp_names(a);
+
 	return a;
 }
 

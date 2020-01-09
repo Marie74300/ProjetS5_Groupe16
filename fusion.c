@@ -63,7 +63,7 @@ void fusion(OFile a, OFile b, OFile dest)
 					headerOfB = headerOfB->suivant;
 				}
 
-				if (headerOfB->tableformat.sh_name == currentSecHead->tableformat.sh_name 
+				if (headerOfB->tableformat.sh_name == currentSecHead->tableformat.sh_name
 					&& currentSecHead->tableformat.sh_type != SHT_SYMTAB && currentSecHead->tableformat.sh_type != SHT_RELA)
 				{
 					write_section(b, dest, headerOfB);
@@ -108,7 +108,7 @@ void fusion(OFile a, OFile b, OFile dest)
 			write_double_word(dest.h.headformat.e_shoff, dest.f, dest.h.endianess);
 		}
 
-	
+
 
 
 	printf("Fusion FINISHED\n\n");
@@ -219,7 +219,7 @@ void fusion_table_symbole(OFile a, OFile b, OFile dest)
 		currentB = currentB->suivant;
 	}
 	endDestSymTab->suivant = NULL;
-	
+
 
 	// MODIFICATION DU NOMBRE DE SYMBOLES
 	OneHeader *headerA = a.s.tete;
@@ -237,7 +237,7 @@ int comparaison(SymTab symTab1, OneSymbol *current, OneSymbol *previous, OneSymb
 
 		if (ELF32_ST_BIND(current->tableformat.st_value) == STB_LOCAL)
 		{
-			
+
 			printf("\tLOC\n");
 
 			OneSymbol *ajout;
@@ -247,7 +247,7 @@ int comparaison(SymTab symTab1, OneSymbol *current, OneSymbol *previous, OneSymb
 			ajout->suivant = NULL;
 
 			endDestSymTab->suivant = ajout;
-			
+
 			return 1;
 		}
 
@@ -353,7 +353,7 @@ void fusion_reimp(ReimpTab reimpA, ReimpTab reimpB)
 	for (int i=0 ; i < reimpB.nb ; i++)
 	{
 		printf("\t\t%d/%d\n", i + 1, reimpB.nb);
-		
+
 		ajout = malloc(sizeof(OneReimp));
 		ajout->tableformat = currentB->tableformat;
 		ajout->value = currentB->value;
@@ -362,12 +362,12 @@ void fusion_reimp(ReimpTab reimpA, ReimpTab reimpB)
 
 		endReimp->suivant = ajout;
 		endReimp = endReimp->suivant;
-		
+
 		currentB = currentB->suivant;
 		reimpA.nb++;
 	}
 	endReimp->suivant = NULL;
-	
+
 
 	// MODIFICATIONS
 	//reimpA.offset = 0;
@@ -451,7 +451,7 @@ void fusion_table_reimplementation(OFile a, OFile b, OFile dest)
 
 		while(comp_string(reimpA->name, reimpB->name) && reimpB != NULL)
 			reimpB = reimpB->suivant;
-			
+
 		if (reimpB != NULL)
 		{
 			printf("\t\tFUSION\n");
