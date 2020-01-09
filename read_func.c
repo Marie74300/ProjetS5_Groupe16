@@ -162,19 +162,23 @@ SymTab read_table_symboles(FILE * f, SecHead section, Elf_Header head)
 				symbole_table.nb = c2->tableformat.sh_size / 16;
 				//placement dans le fichier 
 				fseek(f, c2->tableformat.sh_offset, SEEK_SET);
-					for(int j=0 ; j < symbole_table.nb ; j++)
-					{
-						current->tableformat.st_name = read_Elf32_Word(f, head.endianess);
-						current->tableformat.st_value = read_Elf32_Addr(f, head.endianess);
-						current->tableformat.st_size = read_Elf32_Word(f, head.endianess);
-						current->tableformat.st_info = read_unsigned_char(f);
-						current->tableformat.st_other = read_unsigned_char(f);
-						current->tableformat.st_shndx = read_Elf32_Half(f, head.endianess);
-						//changement de donnée à traité et stockage
-						precedent = current;
-						current = malloc (sizeof(OneSymbol));
-						precedent->suivant = current;
-					}
+				for(int j=0 ; j < symbole_table.nb ; j++)
+				{
+					current->tableformat.st_name = read_Elf32_Word(f, head.endianess);
+					current->tableformat.st_value = read_Elf32_Addr(f, head.endianess);
+					current->tableformat.st_size = read_Elf32_Word(f, head.endianess);
+					current->tableformat.st_info = read_unsigned_char(f);
+					current->tableformat.st_other = read_unsigned_char(f);
+					current->tableformat.st_shndx = read_Elf32_Half(f, head.endianess);
+					//changement de donnée à traité et stockage
+					precedent = current;
+					current = malloc (sizeof(OneSymbol));
+					precedent->suivant = current;
+						
+				}
+				//On arrête la boucle lors du premier passage car tout les type SHT_REL/SHT_RELA pointe toute sur le meme indice.
+                		//Donc on risque de repeter la meme action plusieurs fois...
+                		break;
 			}
 		
 		c = c->suivant;
