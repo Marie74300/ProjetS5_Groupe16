@@ -14,8 +14,6 @@ int power(int a, int b)
 	return r;
 }
 
-
-
 // HEADER
 
 Elf_Header read_header(FILE * f)
@@ -36,7 +34,7 @@ Elf_Header read_header(FILE * f)
 	if (head.h32.e_ident[EI_CLASS] == 1)
 	{
 		head.architecture = 1;
-		
+
 		head.h32.e_type = read_Elf32_Half(f, endianess);
 		head.h32.e_machine = read_Elf32_Half(f, endianess);
 		head.h32.e_version = read_Elf32_Word(f, endianess);
@@ -59,7 +57,7 @@ Elf_Header read_header(FILE * f)
 	else if (head.h64.e_ident[EI_CLASS] == 2)
 	{
 		head.architecture = 2;
-		
+
 		head.h64.e_type = read_Elf32_Half(f, endianess);
 		head.h64.e_machine = read_Elf32_Half(f, endianess);
 		head.h64.e_version = read_Elf32_Word(f, endianess);
@@ -86,7 +84,7 @@ Elf_Header read_header(FILE * f)
 void print_header(Elf_Header h)
 {
 	printf("\nELF Header:\n");
-	
+
 	if (h.architecture == 1){
 		printf("  Magic:   ");
 		for(int i=0 ; i<EI_NIDENT ; i++)
@@ -327,7 +325,8 @@ void print_section(FILE * f, SecHead s, int i)
 	for(int j=0 ; j < c->t32.sh_size ; j++)
 	{
 		printf("%02x ", read_unsigned_char(f));
-		if ((j+1)%4 == 0) printf("\n");
+		if ((j+1)%4 == 0) printf("\t");
+		if ((j+1)%8 == 0) printf("\n");
 	}
 	printf("\n\n");
 }
@@ -348,7 +347,7 @@ SymTab read_table_symboles(FILE * f, SecHead s, Elf_Header h)
 	OneHeader *c = s.tete;
 	OneHeader *c2 = s.tete;
 
-	for (int i = 0; i < s.nb; i++) 
+	for (int i = 0; i < s.nb; i++)
 	{
 		if (h.architecture == 1){
 			//Check for type == SHT_REL or SHT_RELA
@@ -471,7 +470,7 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h,
 					fseek(f, c->t32.sh_offset ,SEEK_SET); //Offset
 
 					for(int j=0 ; j < c->t32.sh_size / 8 ; j++) // Size
-					{ 
+					{
 						current->t32.r_offset = read_Elf32_Addr(f, h.endianess);
 						current->t32.r_info = read_Elf32_Word(f, h.endianess);
 
@@ -505,7 +504,7 @@ ReimpTab read_table_reimplantation(FILE * f, SecHead s, SymTab st, Elf_Header h,
 					fseek(f, c->t64.sh_offset ,SEEK_SET); //Offset
 
 					for(int j=0 ; j < c->t64.sh_size / 8 ; j++) // Size
-					{ 
+					{
 						current->t64.r_offset = read_Elf64_Addr(f, h.endianess);
 						current->t64.r_info = read_Elf64_Word(f, h.endianess);
 
@@ -572,9 +571,9 @@ ListReimpTab read_table_reimplantation_new(FILE * f, SecHead s, SymTab st, Elf_H
 	{
 		c->r = r;
 		LR.nb ++;
-		
+
 		r = read_table_reimplantation(f, s, st, h, LR.nb);
-		
+
 		p = c;
 		c = malloc(sizeof(OneList));
 		p->suivant = c;
@@ -582,6 +581,7 @@ ListReimpTab read_table_reimplantation_new(FILE * f, SecHead s, SymTab st, Elf_H
 
 	return LR;
 }
+
 void print_table_reimp_new(ListReimpTab LR, StringTab string2, StringTab string1)
 {
 	OneList *c = LR.tete;
@@ -637,24 +637,7 @@ StringTab read_string_table(FILE * f, Elf_Header head, SecHead s, int nb)
 	return string;
 }
 
-/*void print_string_tab(StringTab string)
-{
-	printf("La table des chaines de caracteres contient %d entrées :\n", string.nb);
-
-	OneString *current = string.tete;
-
-	for(int i=0 ; i < string.nb ; i++)
-	{
-		printf("[%d] : ", i);
-		printf("%s - ", current->t);
-		printf("%x\n", current->pos);
-
-		current = current->suivant;
-	}
-	printf("\n\n");
-}*/
-
-void  print_string(StringTab string, int pos)
+void print_string(StringTab string, int pos)
 {
 	OneString *current = string.tete;
 
@@ -663,24 +646,15 @@ void  print_string(StringTab string, int pos)
 			current = current->suivant;
 		}
 
-		while(current->c != '\0'){			
-			printf("%c", current->c);	
+		while(current->c != '\0'){
+			printf("%c", current->c);
 			current = current->suivant;
 		}
 	}
 	printf("\t");
-
-	/*while (current != NULL && pos != current->pos)
-		current = current->suivant;
-
-	if(current == NULL) return "";
-	return current->t;*/
 }
 
-
-
 // UTILS
-
 OFile initOFile(FILE * fich_o)
 {
 	OFile a;
@@ -710,32 +684,32 @@ void end(OFile a)
 	while(c1 != NULL)
 	{
 		p1 = c1;
-		c1 = c1->suivant;	
+		c1 = c1->suivant;
 		free(p1);
 	}
-	
+
 	OneSymbol *c2 = a.st.tete;
 	OneSymbol *p2;
 	while(c2 != NULL)
 	{
 		p2 = c2;
-		c2 = c2->suivant;	
+		c2 = c2->suivant;
 		free(p2);
 	}
-	
+
 	OneList *cg = a.LR.tete;
 	OneList *pg;
 	while (cg != NULL)
 	{
 		pg = cg;
 		cg = cg->suivant;
-		
+
 		OneReimp *c3 = pg->r.tete;
 		OneReimp *p3;
 		while(c3 != NULL)
 		{
 			p3 = c3;
-			c3 = c3->suivant;	
+			c3 = c3->suivant;
 			free(p3);
 		}
 
@@ -747,7 +721,7 @@ void end(OFile a)
 	while(c4 != NULL)
 	{
 		p4 = c4;
-		c4 = c4->suivant;	
+		c4 = c4->suivant;
 		free(p4);
 	}
 
@@ -756,7 +730,7 @@ void end(OFile a)
 	while(c5 != NULL)
 	{
 		p5 = c5;
-		c5 = c5->suivant;	
+		c5 = c5->suivant;
 		free(p5);
 	}
 }

@@ -28,10 +28,8 @@ int main(int argc, char ** argv)
 		return 4;
 	}
 
-	// 1er FICHIER .o
-	OFile a = initOFile(fich_o1);
 
-	// 2eme FICHIER .o
+	OFile a = initOFile(fich_o1);
 	OFile b = initOFile(fich_o2);
 
 	// Res FICHIER .o
@@ -43,15 +41,14 @@ int main(int argc, char ** argv)
 	fusion (a, b, dest);
 	
 	
-	
+
 	end(a);
 	end(b);
-
-
 	
 	fclose(fich_o1);
 	fclose(fich_o2);
 	fclose(f_dest);
+
 
 	return 0;
 }
